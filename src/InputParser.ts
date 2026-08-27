@@ -1,4 +1,4 @@
-import { ItemType } from "./Item";
+import { ItemType } from "./models/ItemType";
 
 export interface ParsedInput {
     name: string;
@@ -22,13 +22,6 @@ export class InputParser {
         if (args.length === 0) {
             throw new Error(
                 "Please provide item details."
-            );
-        }
-
-        // -name must always be the first option.
-        if (args[0] !== "-name") {
-            throw new Error(
-                "The first option must be -name."
             );
         }
 
@@ -74,27 +67,29 @@ export class InputParser {
         }
 
         // Name is mandatory.
-        if (!input["-name"]) {
+        if (input["-name"] === undefined) {
             throw new Error(
                 "Item name (-name) is required."
             );
         }
 
         // Name cannot be empty or whitespace.
-        if (input["-name"].trim() === "") {
+        const name = input["-name"].trim();
+
+        if (name === "") {
             throw new Error(
                 "Item name cannot be empty."
             );
         }
 
         // Type is mandatory.
-        if (!input["-type"]) {
+        if (input["-type"] === undefined) {
             throw new Error(
                 "Item type (-type) is required."
             );
         }
 
-        // Convert type to lowercase so Raw, RAW, etc. are accepted.
+        // Convert type to lowercase.
         const type = input["-type"].toLowerCase();
 
         // Validate item type.
@@ -155,7 +150,7 @@ export class InputParser {
         }
 
         return {
-            name: input["-name"].trim(),
+            name,
             price,
             quantity,
             type
