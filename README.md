@@ -107,14 +107,5 @@ npm test
 
 Manual testing was also performed for valid inputs, missing required options, invalid types, invalid price/quantity, different option orders, multiple items, and invalid `y/n` responses.
 
-## Project Structure
-
-```text
-src/
-├── Item.ts
-├── InputParser.ts
-├── TaxCalculator.ts
-└── index.ts
-
-tests/
-```
+## Dev Analysis Doc and Testing Analysis
+https://docs.google.com/document/d/1CJHKnIM3iIyKD_-C1Z8FGAdzs4e4ToTP6lXCrCovWLU/edit?usp=sharing
