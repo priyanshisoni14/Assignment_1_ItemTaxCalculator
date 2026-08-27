@@ -64,7 +64,7 @@ surcharge
 |---|---:|
 | ≤ ₹100 | ₹5 |
 | > ₹100 and ≤ ₹200 | ₹10 |
-| > ₹200 | 5% |
+| > ₹200 | 5%  of the applicable final cost|
 
 ## Tax Calculation
 
