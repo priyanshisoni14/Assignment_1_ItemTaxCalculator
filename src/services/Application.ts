@@ -9,22 +9,20 @@ export class Application {
     private readonly ui: ConsoleUI;
     private readonly processor: ItemProcessor;
 
-    constructor() {
-        this.ui = new ConsoleUI();
-
-        const parser = new InputParser();
+    constructor(ui: ConsoleUI = new ConsoleUI()) {
+        this.ui = ui;
 
         this.processor = new ItemProcessor(
-            parser,
+            new InputParser(),
             this.ui
         );
     }
 
     async run(): Promise<void> {
 
-        const items = this.processCommandLineItem();
+        const items = this.processFirstItem();
 
-        if (!items) {
+        if (items === null) {
             return;
         }
 
@@ -39,7 +37,7 @@ export class Application {
         this.ui.close();
     }
 
-    private processCommandLineItem(): Item[] | null {
+    private processFirstItem(): Item[] | null {
 
         const args = process.argv.slice(2);
 
@@ -68,26 +66,26 @@ export class Application {
                 await this.ui.askQuestion(
                     "\nDo you want to enter details of any other item (y/n): "
                 )
-            ).trim().toLowerCase();
+            )
+                .trim()
+                .toLowerCase();
 
             if (answer === "n") {
                 return;
             }
 
-            if (answer !== "y") {
-                this.ui.displayMessage(
-                    "Invalid input. Please enter y or n."
-                );
+            if (answer === "y") {
+                await this.addItem(items);
                 continue;
             }
 
-            await this.processAdditionalItem(items);
+            this.ui.displayMessage(
+                "Invalid input. Please enter y or n."
+            );
         }
     }
 
-    private async processAdditionalItem(
-        items: Item[]
-    ): Promise<void> {
+    private async addItem(items: Item[]): Promise<void> {
 
         const input = await this.ui.askQuestion(
             "Enter item details: "

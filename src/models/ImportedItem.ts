@@ -4,6 +4,7 @@ import { ItemType } from "./ItemType";
 export class ImportedItem extends Item {
 
     calculateTaxPerUnit(): number {
+
         const importDuty = this.price * 0.10;
 
         const costAfterImportDuty =

@@ -4,6 +4,7 @@ import { ItemType } from "./ItemType";
 export class ManufacturedItem extends Item {
 
     calculateTaxPerUnit(): number {
+
         const basicTax = this.price * 0.125;
 
         const additionalTax =

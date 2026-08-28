@@ -4,58 +4,67 @@ export class ItemSummary {
 
     static display(items: Item[]): void {
 
-        let totalItemCost = 0;
-        let totalTax = 0;
-        let totalFinalPrice = 0;
-
-        console.log("\n========================================");
-        console.log("                 SUMMARY");
-        console.log("========================================");
+        console.log("\n==============================================================");
+        console.log("                         ITEM SUMMARY");
+        console.log("==============================================================");
 
         console.log(
-            "\nItem Name\tType\tQuantity\tPrice\tTax\tFinal Price"
+            "ID | Name | Type | Price | Qty | Tax | Final Price"
         );
 
         console.log(
-            "--------------------------------------------------------------------------"
+            "--------------------------------------------------------------"
         );
 
-        items.forEach((item) => {
-
-            const itemCost =
-                item.getItemCost();
-
-            const tax =
-                item.calculateTotalTax();
-
-            const finalPrice =
-                item.calculateTotalFinalPrice();
+        for (const item of items) {
 
             console.log(
-                `${item.name}\t${item.getType()}\t${item.quantity}\t\t₹${item.price.toFixed(2)}\t₹${tax.toFixed(2)}\t₹${finalPrice.toFixed(2)}`
+                `${item.id} | ` +
+                `${item.name} | ` +
+                `${item.getType()} | ` +
+                `₹${item.price.toFixed(2)} | ` +
+                `${item.quantity} | ` +
+                `₹${item.calculateTotalTax().toFixed(2)} | ` +
+                `₹${item.calculateTotalFinalPrice().toFixed(2)}`
             );
+        }
 
-            totalItemCost += itemCost;
-            totalTax += tax;
-            totalFinalPrice += finalPrice;
-        });
+        const totalItemCost = items.reduce(
+            (total, item) =>
+                total + item.getItemCost(),
+            0
+        );
 
-        console.log(
-            "--------------------------------------------------------------------------"
+        const totalTax = items.reduce(
+            (total, item) =>
+                total + item.calculateTotalTax(),
+            0
+        );
+
+        const totalFinalPrice = items.reduce(
+            (total, item) =>
+                total + item.calculateTotalFinalPrice(),
+            0
         );
 
         console.log(
-            `Overall Total Item Cost : ₹${totalItemCost.toFixed(2)}`
+            "--------------------------------------------------------------"
         );
 
         console.log(
-            `Overall Total Tax       : ₹${totalTax.toFixed(2)}`
+            `Total Item Cost   : ₹${totalItemCost.toFixed(2)}`
         );
 
         console.log(
-            `Overall Total Price     : ₹${totalFinalPrice.toFixed(2)}`
+            `Total Tax         : ₹${totalTax.toFixed(2)}`
         );
 
-        console.log("========================================");
+        console.log(
+            `Total Final Price : ₹${totalFinalPrice.toFixed(2)}`
+        );
+
+        console.log(
+            "=============================================================="
+        );
     }
 }

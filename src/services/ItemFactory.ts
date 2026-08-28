@@ -1,44 +1,42 @@
 import { Item } from "../models/Item";
-import { ItemType } from "../models/ItemType";
 import { RawItem } from "../models/RawItem";
 import { ManufacturedItem } from "../models/ManufacturedItem";
 import { ImportedItem } from "../models/ImportedItem";
+import { ParsedInput } from "../InputParser";
 
 export class ItemFactory {
 
-    static create(
-        name: string,
-        price: number,
-        quantity: number,
-        type: ItemType
-    ): Item {
+    static create(parsedInput: ParsedInput): Item {
 
-        switch (type) {
+        const price = parsedInput.price ?? 0;
+        const quantity = parsedInput.quantity ?? 0;
+
+        switch (parsedInput.type) {
 
             case "raw":
                 return new RawItem(
-                    name,
+                    parsedInput.name,
                     price,
                     quantity
                 );
 
             case "manufactured":
                 return new ManufacturedItem(
-                    name,
+                    parsedInput.name,
                     price,
                     quantity
                 );
 
             case "imported":
                 return new ImportedItem(
-                    name,
+                    parsedInput.name,
                     price,
                     quantity
                 );
 
             default:
                 throw new Error(
-                    `Invalid item type: ${type}`
+                    "Invalid item type."
                 );
         }
     }

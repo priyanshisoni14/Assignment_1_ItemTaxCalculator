@@ -1,11 +1,18 @@
 import { ItemType } from "./ItemType";
 
 export abstract class Item {
+
+    private static nextId = 1;
+
+    public readonly id: number;
+
     constructor(
         public name: string,
         public price: number,
         public quantity: number
-    ) {}
+    ) {
+        this.id = Item.nextId++;
+    }
 
     getItemCost(): number {
         return this.price * this.quantity;

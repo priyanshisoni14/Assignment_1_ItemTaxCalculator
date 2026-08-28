@@ -8,7 +8,10 @@ export class ConsoleUI {
             output: process.stdout
         });
 
-    askQuestion(question: string): Promise<string> {
+    askQuestion(
+        question: string
+    ): Promise<string> {
+
         return new Promise((resolve) => {
             this.rl.question(
                 question,
@@ -17,69 +20,12 @@ export class ConsoleUI {
         });
     }
 
-    displayItemResult(
-        itemName: string,
-        itemType: string,
-        price: number,
-        quantity: number,
-        taxPerUnit: number,
-        finalPricePerUnit: number,
-        totalItemCost: number,
-        totalTax: number,
-        totalFinalPrice: number
-    ): void {
-
-        console.log(
-            "\n----------------------------------------"
-        );
-
-        console.log(
-            `Item Name          : ${itemName}`
-        );
-
-        console.log(
-            `Item Price         : ₹${price.toFixed(2)}`
-        );
-
-        console.log(
-            `Quantity           : ${quantity}`
-        );
-
-        console.log(
-            `Item Type          : ${itemType}`
-        );
-
-        console.log(
-            `Sales Tax / Unit   : ₹${taxPerUnit.toFixed(2)}`
-        );
-
-        console.log(
-            `Final Price / Unit : ₹${finalPricePerUnit.toFixed(2)}`
-        );
-
-        console.log(
-            `Total Item Cost    : ₹${totalItemCost.toFixed(2)}`
-        );
-
-        console.log(
-            `Total Tax          : ₹${totalTax.toFixed(2)}`
-        );
-
-        console.log(
-            `Total Final Price  : ₹${totalFinalPrice.toFixed(2)}`
-        );
-
-        console.log(
-            "----------------------------------------"
-        );
+    displayMessage(message: string): void {
+        console.log(message);
     }
 
     displayError(message: string): void {
         console.error(`\nError: ${message}`);
-    }
-
-    displayMessage(message: string): void {
-        console.log(message);
     }
 
     close(): void {

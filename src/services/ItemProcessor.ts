@@ -1,26 +1,23 @@
 import { Item } from "../models/Item";
-import { InputParser, ParsedInput } from "../InputParser";
+import { InputParser } from "../InputParser";
 import { ItemFactory } from "./ItemFactory";
 import { ConsoleUI } from "../ui/ConsoleUI";
 
 export class ItemProcessor {
 
     constructor(
-        private readonly inputParser: InputParser,
+        private readonly parser: InputParser,
         private readonly ui: ConsoleUI
     ) {}
 
     process(args: string[]): Item | null {
 
         try {
+            const parsedInput = this.parser.parse(args);
 
-            const parsedInput: ParsedInput =
-                this.inputParser.parse(args);
+            const item = ItemFactory.create(parsedInput);
 
-            const item =
-                this.createItem(parsedInput);
-
-            this.displayItem(item);
+            this.displayItemDetails(item);
 
             return item;
 
@@ -38,30 +35,50 @@ export class ItemProcessor {
         }
     }
 
-    private createItem(
-        parsedInput: ParsedInput
-    ): Item {
+    private displayItemDetails(item: Item): void {
 
-        return ItemFactory.create(
-            parsedInput.name,
-            parsedInput.price ?? 0,
-            parsedInput.quantity ?? 0,
-            parsedInput.type
+        this.ui.displayMessage(
+            "\n----------------------------------------"
         );
-    }
 
-    private displayItem(item: Item): void {
+        this.ui.displayMessage(
+            `Item Name          : ${item.name}`
+        );
 
-        this.ui.displayItemResult(
-            item.name,
-            item.getType(),
-            item.price,
-            item.quantity,
-            item.calculateTaxPerUnit(),
-            item.calculateFinalPricePerUnit(),
-            item.getItemCost(),
-            item.calculateTotalTax(),
-            item.calculateTotalFinalPrice()
+        this.ui.displayMessage(
+            `Item Price         : ₹${item.price.toFixed(2)}`
+        );
+
+        this.ui.displayMessage(
+            `Quantity           : ${item.quantity}`
+        );
+
+        this.ui.displayMessage(
+            `Item Type          : ${item.getType()}`
+        );
+
+        this.ui.displayMessage(
+            `Sales Tax / Unit   : ₹${item.calculateTaxPerUnit().toFixed(2)}`
+        );
+
+        this.ui.displayMessage(
+            `Final Price / Unit : ₹${item.calculateFinalPricePerUnit().toFixed(2)}`
+        );
+
+        this.ui.displayMessage(
+            `Total Item Cost    : ₹${item.getItemCost().toFixed(2)}`
+        );
+
+        this.ui.displayMessage(
+            `Total Tax          : ₹${item.calculateTotalTax().toFixed(2)}`
+        );
+
+        this.ui.displayMessage(
+            `Total Final Price  : ₹${item.calculateTotalFinalPrice().toFixed(2)}`
+        );
+
+        this.ui.displayMessage(
+            "----------------------------------------"
         );
     }
 }
