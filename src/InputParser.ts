@@ -1,4 +1,4 @@
-import { ItemType } from "./Item";
+import { ItemType } from "./models/ItemType";
 
 export interface ParsedInput {
     name: string;
@@ -7,28 +7,52 @@ export interface ParsedInput {
     type: ItemType;
 }
 
+interface OptionConfig {
+    required: boolean;
+    validate?: (value: string) => boolean;
+    errorMessage?: string;
+}
+
 export class InputParser {
 
-    private readonly validOptions = new Set([
-        "-name",
-        "-price",
-        "-quantity",
-        "-type"
-    ]);
+    private readonly options: Record<string, OptionConfig> = {
+
+        "-name": {
+            required: true
+        },
+
+        "-price": {
+            required: false,
+            validate: (value: string): boolean =>
+                Number.isFinite(Number(value)) &&
+                Number(value) >= 0,
+            errorMessage: "Price must be a valid non-negative number."
+        },
+
+        "-quantity": {
+            required: false,
+            validate: (value: string): boolean =>
+                Number.isFinite(Number(value)) &&
+                Number(value) > 0 &&
+                Number.isInteger(Number(value)),
+            errorMessage: "Quantity must be a positive whole number."
+        },
+
+        "-type": {
+            required: true,
+            validate: (value: string): boolean =>
+                ["raw", "manufactured", "imported"]
+                    .includes(value.toLowerCase()),
+            errorMessage:
+                "Invalid item type. Valid types are raw, manufactured, imported."
+        }
+    };
 
     parse(args: string[]): ParsedInput {
 
-        // At least one option must be provided.
         if (args.length === 0) {
             throw new Error(
                 "Please provide item details."
-            );
-        }
-
-        // -name must always be the first option.
-        if (args[0] !== "-name") {
-            throw new Error(
-                "The first option must be -name."
             );
         }
 
@@ -38,8 +62,8 @@ export class InputParser {
 
             const option = args[i];
 
-            // Check whether the option is supported.
-            if (!this.validOptions.has(option)) {
+            // Check that the option is supported.
+            if (!this.options[option]) {
                 throw new Error(
                     `Unknown option: ${option}. Valid options are -name, -price, -quantity, -type.`
                 );
@@ -54,66 +78,65 @@ export class InputParser {
 
             const value = args[i + 1];
 
-            // Check whether a value was provided.
-            if (value === undefined) {
+            // A value is missing if there is no next argument
+            // or if the next argument is another option.
+            if (
+                value === undefined ||
+                this.options[value] !== undefined
+            ) {
                 throw new Error(
                     `Value missing for ${option}.`
                 );
             }
 
-            // Check for empty value.
-            if (value.trim() === "") {
+            // Trim the value once before storing it.
+            const trimmedValue = value.trim();
+
+            // Reject empty values.
+            if (trimmedValue === "") {
                 throw new Error(
                     `Value for ${option} cannot be empty.`
                 );
             }
 
-            input[option] = value;
+            input[option] = trimmedValue;
 
             i++;
         }
 
-        // Name is mandatory.
-        if (!input["-name"]) {
+        this.validateRequiredOptions(input);
+
+        this.validateValues(input);
+
+        return this.createParsedInput(input);
+    }
+
+    private validateRequiredOptions(
+        input: Record<string, string>
+    ): void {
+
+        if (input["-name"] === undefined) {
             throw new Error(
                 "Item name (-name) is required."
             );
         }
 
-        // Name cannot be empty or whitespace.
-        if (input["-name"].trim() === "") {
-            throw new Error(
-                "Item name cannot be empty."
-            );
-        }
-
-        // Type is mandatory.
-        if (!input["-type"]) {
+        if (input["-type"] === undefined) {
             throw new Error(
                 "Item type (-type) is required."
             );
         }
+    }
 
-        // Convert type to lowercase so Raw, RAW, etc. are accepted.
-        const type = input["-type"].toLowerCase();
+    private validateValues(
+        input: Record<string, string>
+    ): void {
 
-        // Validate item type.
-        if (
-            type !== "raw" &&
-            type !== "manufactured" &&
-            type !== "imported"
-        ) {
-            throw new Error(
-                "Invalid item type. Valid types are raw, manufactured, imported."
-            );
-        }
-
-        let price: number | undefined;
-
-        // Price is optional.
+        // Validate price separately so the original
+        // error messages remain clear.
         if (input["-price"] !== undefined) {
 
-            price = Number(input["-price"]);
+            const price = Number(input["-price"]);
 
             if (!Number.isFinite(price)) {
                 throw new Error(
@@ -128,12 +151,11 @@ export class InputParser {
             }
         }
 
-        let quantity: number | undefined;
-
-        // Quantity is optional.
+        // Validate quantity separately so each
+        // validation has its own meaningful error.
         if (input["-quantity"] !== undefined) {
 
-            quantity = Number(input["-quantity"]);
+            const quantity = Number(input["-quantity"]);
 
             if (!Number.isFinite(quantity)) {
                 throw new Error(
@@ -154,11 +176,37 @@ export class InputParser {
             }
         }
 
-        return {
-            name: input["-name"].trim(),
-            price,
-            quantity,
-            type
+        // Validate item type.
+        const type = input["-type"].toLowerCase();
+
+        if (
+            type !== "raw" &&
+            type !== "manufactured" &&
+            type !== "imported"
+        ) {
+            throw new Error(
+                "Invalid item type. Valid types are raw, manufactured, imported."
+            );
+        }
+    }
+
+    private createParsedInput(
+        input: Record<string, string>
+    ): ParsedInput {
+
+        const result: ParsedInput = {
+            name: input["-name"],
+            type: input["-type"].toLowerCase() as ItemType
         };
+
+        if (input["-price"] !== undefined) {
+            result.price = Number(input["-price"]);
+        }
+
+        if (input["-quantity"] !== undefined) {
+            result.quantity = Number(input["-quantity"]);
+        }
+
+        return result;
     }
 }

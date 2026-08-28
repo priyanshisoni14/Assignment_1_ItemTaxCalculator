@@ -1,29 +1,108 @@
-import { Item } from "../src/Item";
+import { RawItem } from "../src/models/RawItem";
+import { ManufacturedItem } from "../src/models/ManufacturedItem";
+import { ImportedItem } from "../src/models/ImportedItem";
 
 describe("Item", () => {
 
-    test("should calculate total item cost using price × quantity", () => {
-        const item = new Item(
-            "Pen",
-            100,
-            3,
-            "raw"
-        );
+    describe("Common item functionality", () => {
 
-        expect(item.getItemCost())
-            .toBeCloseTo(300);
+        it("should calculate total item cost", () => {
+
+            const item = new RawItem(
+                "Pen",
+                100,
+                3
+            );
+
+            expect(item.getItemCost()).toBe(300);
+        });
+
+        it("should calculate final price per unit", () => {
+
+            const item = new RawItem(
+                "Pen",
+                100,
+                3
+            );
+
+            expect(item.calculateFinalPricePerUnit())
+                .toBe(112.5);
+        });
+
+        it("should calculate total tax", () => {
+
+            const item = new RawItem(
+                "Pen",
+                100,
+                3
+            );
+
+            expect(item.calculateTotalTax())
+                .toBe(37.5);
+        });
+
+        it("should calculate total final price", () => {
+
+            const item = new RawItem(
+                "Pen",
+                100,
+                3
+            );
+
+            expect(item.calculateTotalFinalPrice())
+                .toBe(337.5);
+        });
+
     });
 
+    describe("Item ID", () => {
 
-    test("should calculate item cost correctly for decimal price", () => {
-        const item = new Item(
-            "Notebook",
-            25.50,
-            4,
-            "raw"
-        );
+        it("should assign a unique ID to each item", () => {
 
-        expect(item.getItemCost())
-            .toBeCloseTo(102);
+            const item1 = new RawItem(
+                "Pen",
+                100,
+                1
+            );
+
+            const item2 = new RawItem(
+                "Pen",
+                100,
+                1
+            );
+
+            expect(item1.id).not.toBe(item2.id);
+        });
+
+        it("should assign unique IDs across different item types", () => {
+
+            const rawItem = new RawItem(
+                "Pen",
+                100,
+                1
+            );
+
+            const manufacturedItem = new ManufacturedItem(
+                "Machine",
+                200,
+                1
+            );
+
+            const importedItem = new ImportedItem(
+                "Phone",
+                300,
+                1
+            );
+
+            const ids = [
+                rawItem.id,
+                manufacturedItem.id,
+                importedItem.id
+            ];
+
+            expect(new Set(ids).size).toBe(3);
+        });
+
     });
+
 });

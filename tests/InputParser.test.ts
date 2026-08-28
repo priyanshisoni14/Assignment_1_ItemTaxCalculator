@@ -4,20 +4,14 @@ describe("InputParser", () => {
 
     const parser = new InputParser();
 
-
     describe("Valid input", () => {
 
-        test("should parse valid item details", () => {
-
+        it("should parse valid item details", () => {
             const result = parser.parse([
-                "-name",
-                "Pen",
-                "-price",
-                "100",
-                "-quantity",
-                "3",
-                "-type",
-                "raw"
+                "-name", "Pen",
+                "-price", "100",
+                "-quantity", "3",
+                "-type", "raw"
             ]);
 
             expect(result).toEqual({
@@ -28,18 +22,12 @@ describe("InputParser", () => {
             });
         });
 
-
-        test("should accept options in different order", () => {
-
+        it("should accept different command-line option order", () => {
             const result = parser.parse([
-                "-name",
-                "Pen",
-                "-type",
-                "raw",
-                "-quantity",
-                "3",
-                "-price",
-                "100"
+                "-price", "100",
+                "-type", "raw",
+                "-quantity", "3",
+                "-name", "Pen"
             ]);
 
             expect(result).toEqual({
@@ -50,14 +38,10 @@ describe("InputParser", () => {
             });
         });
 
-
-        test("should allow price and quantity to be omitted", () => {
-
+        it("should accept optional price and quantity", () => {
             const result = parser.parse([
-                "-name",
-                "Pen",
-                "-type",
-                "raw"
+                "-name", "Pen",
+                "-type", "raw"
             ]);
 
             expect(result).toEqual({
@@ -68,130 +52,118 @@ describe("InputParser", () => {
             });
         });
 
-
-        test("should accept item type irrespective of letter case", () => {
-
+        it("should trim item name", () => {
             const result = parser.parse([
-                "-name",
-                "Pen",
-                "-type",
-                "RAW"
+                "-name", "  Pen  ",
+                "-type", "raw"
             ]);
 
-            expect(result.type).toBe("raw");
+            expect(result.name).toBe("Pen");
         });
-    });
 
+    });
 
     describe("Validation", () => {
 
-        test("should reject missing item name", () => {
+        it("should reject empty arguments", () => {
+            expect(() => parser.parse([]))
+                .toThrow("Please provide item details.");
+        });
 
+        it("should reject missing item name", () => {
             expect(() => parser.parse([
-                "-price",
-                "100",
-                "-type",
-                "raw"
+                "-price", "100",
+                "-type", "raw"
+            ])).toThrow("Item name (-name) is required.");
+        });
+
+        it("should reject missing item type", () => {
+            expect(() => parser.parse([
+                "-name", "Pen"
+            ])).toThrow("Item type (-type) is required.");
+        });
+
+        it("should reject invalid item type", () => {
+            expect(() => parser.parse([
+                "-name", "Pen",
+                "-type", "invalid"
             ])).toThrow(
-                "Item name (-name) is required."
+                "Invalid item type. Valid types are raw, manufactured, imported."
             );
         });
 
-
-        test("should reject missing item type", () => {
-
+        it("should reject unknown options", () => {
             expect(() => parser.parse([
-                "-name",
-                "Pen",
-                "-price",
-                "100"
+                "-name", "Pen",
+                "-invalid", "value",
+                "-type", "raw"
             ])).toThrow(
-                "Item type (-type) is required."
+                "Unknown option: -invalid."
             );
         });
 
-
-        test("should reject invalid item type", () => {
-
+        it("should reject duplicate options", () => {
             expect(() => parser.parse([
-                "-name",
-                "Pen",
-                "-type",
-                "invalid"
-            ])).toThrow(
-                "Invalid item type"
-            );
+                "-name", "Pen",
+                "-name", "Pencil",
+                "-type", "raw"
+            ])).toThrow("Duplicate option: -name.");
         });
 
-
-        test("should reject non-numeric price", () => {
-
+        it("should reject missing option value", () => {
             expect(() => parser.parse([
                 "-name",
-                "Pen",
-                "-price",
-                "abc",
-                "-type",
-                "raw"
-            ])).toThrow(
-                "Price must be a valid number."
-            );
+                "-type", "raw"
+            ])).toThrow("Value missing for -name.");
         });
 
-
-        test("should reject negative price", () => {
-
+        it("should reject empty values", () => {
             expect(() => parser.parse([
-                "-name",
-                "Pen",
-                "-price",
-                "-100",
-                "-type",
-                "raw"
-            ])).toThrow();
+                "-name", "   ",
+                "-type", "raw"
+            ])).toThrow("Value for -name cannot be empty.");
         });
 
-
-        test("should reject non-numeric quantity", () => {
-
+        it("should reject invalid price", () => {
             expect(() => parser.parse([
-                "-name",
-                "Pen",
-                "-quantity",
-                "abc",
-                "-type",
-                "raw"
-            ])).toThrow(
-                "Quantity must be a valid number."
-            );
+                "-name", "Pen",
+                "-price", "abc",
+                "-type", "raw"
+            ])).toThrow("Price must be a valid number.");
         });
 
-
-        test("should reject zero quantity", () => {
-
+        it("should reject negative price", () => {
             expect(() => parser.parse([
-                "-name",
-                "Pen",
-                "-quantity",
-                "0",
-                "-type",
-                "raw"
-            ])).toThrow(
-                "Quantity must be greater than zero."
-            );
+                "-name", "Pen",
+                "-price", "-100",
+                "-type", "raw"
+            ])).toThrow("Price cannot be negative.");
         });
 
-
-        test("should reject negative quantity", () => {
-
+        it("should reject invalid quantity", () => {
             expect(() => parser.parse([
-                "-name",
-                "Pen",
-                "-quantity",
-                "-2",
-                "-type",
-                "raw"
-            ])).toThrow();
+                "-name", "Pen",
+                "-quantity", "abc",
+                "-type", "raw"
+            ])).toThrow("Quantity must be a valid number.");
         });
+
+        it("should reject zero quantity", () => {
+            expect(() => parser.parse([
+                "-name", "Pen",
+                "-quantity", "0",
+                "-type", "raw"
+            ])).toThrow("Quantity must be greater than zero.");
+        });
+
+        it("should reject decimal quantity", () => {
+            expect(() => parser.parse([
+                "-name", "Pen",
+                "-quantity", "2.5",
+                "-type", "raw"
+            ])).toThrow("Quantity must be a whole number.");
+        });
+
     });
+
 });
