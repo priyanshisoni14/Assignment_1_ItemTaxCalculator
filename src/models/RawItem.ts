@@ -1,10 +1,13 @@
 import { Item } from "./Item";
 import { ItemType } from "./ItemType";
+import { TaxUtils } from "../utils/TaxUtils";
 
 export class RawItem extends Item {
 
     calculateTaxPerUnit(): number {
-        return this.price * 0.125;
+        return TaxUtils.calculateRawTax(
+            this.price
+        );
     }
 
     getType(): ItemType {
