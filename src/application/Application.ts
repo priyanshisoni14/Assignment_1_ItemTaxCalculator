@@ -2,13 +2,16 @@ import { Item } from "../models/Item";
 import { InputParser } from "../parser/InputParser";
 import { ItemProcessor } from "../processor/ItemProcessor";
 import { ConsoleUI } from "../ui/ConsoleUI";
+import { ItemInputMapper } from "../utils/ItemInputMapper";
 import { ItemSummaryCalculator } from "../utils/ItemSummaryCalculator";
+import { itemInputConfig } from "../config/ItemInputConfig";
 
 export class Application {
 
     private readonly ui: ConsoleUI;
     private readonly processor: ItemProcessor;
-    private readonly summaryCalculator: ItemSummaryCalculator;
+    private readonly summaryCalculator:
+        ItemSummaryCalculator;
 
     constructor(
         ui: ConsoleUI = new ConsoleUI()
@@ -16,10 +19,14 @@ export class Application {
 
         this.ui = ui;
 
-        this.processor = new ItemProcessor(
-            new InputParser(),
-            this.ui
-        );
+        this.processor =
+            new ItemProcessor(
+                new InputParser(
+                    itemInputConfig
+                ),
+                new ItemInputMapper(),
+                this.ui
+            );
 
         this.summaryCalculator =
             new ItemSummaryCalculator();
@@ -27,20 +34,26 @@ export class Application {
 
     async run(): Promise<void> {
 
-        const items = this.processFirstItem();
+        const items =
+            this.processFirstItem();
 
         if (items === null) {
             return;
         }
 
-        await this.collectAdditionalItems(items);
+        await this.collectAdditionalItems(
+            items
+        );
 
-        this.displayItemSummary(items);
+        this.displayItemSummary(
+            items
+        );
 
         this.terminateApplication();
     }
 
-    private processFirstItem(): Item[] | null {
+    private processFirstItem():
+        Item[] | null {
 
         const commandLineArguments =
             process.argv.slice(2);
@@ -61,7 +74,9 @@ export class Application {
                 commandLineArguments
             );
 
-        return item ? [item] : [];
+        return item
+            ? [item]
+            : [];
     }
 
     private async collectAdditionalItems(
@@ -78,7 +93,11 @@ export class Application {
             }
 
             if (answer === "y") {
-                await this.collectAdditionalItem(items);
+
+                await this.collectAdditionalItem(
+                    items
+                );
+
                 continue;
             }
 
@@ -88,7 +107,8 @@ export class Application {
         }
     }
 
-    private async askToAddAnotherItem(): Promise<string> {
+    private async askToAddAnotherItem():
+        Promise<string> {
 
         return (
             await this.ui.askQuestion(
@@ -119,10 +139,7 @@ export class Application {
             );
 
         if (item) {
-
             items.push(item);
-
-            this.ui.displayItemDetails(item);
         }
     }
 
@@ -140,7 +157,8 @@ export class Application {
         );
     }
 
-    private terminateApplication(): void {
+    private terminateApplication():
+        void {
 
         this.ui.displayMessage(
             "\nApplication terminated."
