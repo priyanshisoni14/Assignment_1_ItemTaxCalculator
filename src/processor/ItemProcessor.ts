@@ -1,6 +1,6 @@
 import { Item } from "../models/Item";
-import { InputParser } from "../InputParser";
-import { ItemFactory } from "./ItemFactory";
+import { InputParser } from "../parser/InputParser";
+import { ItemFactory } from "../factory/ItemFactory";
 import { ConsoleUI } from "../ui/ConsoleUI";
 
 export class ItemProcessor {

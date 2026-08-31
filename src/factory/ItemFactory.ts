@@ -2,7 +2,7 @@ import { Item } from "../models/Item";
 import { RawItem } from "../models/RawItem";
 import { ManufacturedItem } from "../models/ManufacturedItem";
 import { ImportedItem } from "../models/ImportedItem";
-import { ParsedInput } from "../InputParser";
+import { ParsedInput } from "../parser/InputParser";
 
 export class ItemFactory {
 

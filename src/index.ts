@@ -1,3 +1,3 @@
-import { Application } from "./services/Application";
+import { Application } from "./application/Application";
 
 new Application().run();

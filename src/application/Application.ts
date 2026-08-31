@@ -1,7 +1,7 @@
 import { Item } from "../models/Item";
-import { InputParser } from "../InputParser";
-import { ItemProcessor } from "./ItemProcessor";
-import { ItemSummary } from "./ItemSummary";
+import { InputParser } from "../parser/InputParser";
+import { ItemProcessor } from "../processor/ItemProcessor";
+
 import { ConsoleUI } from "../ui/ConsoleUI";
 
 export class Application {
@@ -28,7 +28,7 @@ export class Application {
 
         await this.collectAdditionalItems(items);
 
-        ItemSummary.display(items);
+       
 
         this.ui.displayMessage(
             "\nApplication terminated."

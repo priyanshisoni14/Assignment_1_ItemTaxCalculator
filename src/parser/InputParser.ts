@@ -1,4 +1,4 @@
-import { ItemType } from "./models/ItemType";
+import { ItemType } from "../models/ItemType";
 
 export interface ParsedInput {
     name: string;

@@ -1,4 +1,4 @@
-import { InputParser } from "../src/InputParser";
+import { InputParser } from "../src/parser/InputParser";
 
 describe("InputParser", () => {
 

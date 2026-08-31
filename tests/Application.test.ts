@@ -1,4 +1,4 @@
-import { Application } from "../src/services/Application";
+import { Application } from "../src/application/Application";
 import { ConsoleUI } from "../src/ui/ConsoleUI";
 
 describe("Application", () => {
