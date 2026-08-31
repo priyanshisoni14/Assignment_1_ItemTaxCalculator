@@ -1,84 +1,62 @@
 import { Item } from "../models/Item";
 import { InputParser } from "../parser/InputParser";
 import { ItemFactory } from "../factory/ItemFactory";
+import { ItemInputMapper } from "../utils/ItemInputMapper";
 import { ConsoleUI } from "../ui/ConsoleUI";
 
 export class ItemProcessor {
 
     constructor(
         private readonly parser: InputParser,
+        private readonly mapper: ItemInputMapper,
         private readonly ui: ConsoleUI
     ) {}
 
-    process(args: string[]): Item | null {
+    process(
+        args: string[]
+    ): Item | null {
 
         try {
-            const parsedInput = this.parser.parse(args);
 
-            const item = ItemFactory.create(parsedInput);
+            const input =
+                this.parser.parse(args);
 
-            this.displayItemDetails(item);
+            const parsedInput =
+                this.mapper.map(input);
+
+            const item =
+                ItemFactory.create(parsedInput);
+
+            this.ui.displayItemDetails(
+                item
+            );
 
             return item;
 
         } catch (error) {
 
-            if (error instanceof Error) {
-                this.ui.displayError(error.message);
-            } else {
-                this.ui.displayError(
-                    "An unexpected error occurred."
-                );
-            }
+            this.displayProcessingError(
+                error
+            );
 
             return null;
         }
     }
 
-    private displayItemDetails(item: Item): void {
+    private displayProcessingError(
+        error: unknown
+    ): void {
 
-        this.ui.displayMessage(
-            "\n----------------------------------------"
-        );
+        if (error instanceof Error) {
+            this.ui.displayError(
+                error.message
+            );
 
-        this.ui.displayMessage(
-            `Item Name          : ${item.name}`
-        );
+            return;
+        }
 
-        this.ui.displayMessage(
-            `Item Price         : ₹${item.price.toFixed(2)}`
-        );
-
-        this.ui.displayMessage(
-            `Quantity           : ${item.quantity}`
-        );
-
-        this.ui.displayMessage(
-            `Item Type          : ${item.getType()}`
-        );
-
-        this.ui.displayMessage(
-            `Sales Tax / Unit   : ₹${item.calculateTaxPerUnit().toFixed(2)}`
-        );
-
-        this.ui.displayMessage(
-            `Final Price / Unit : ₹${item.calculateFinalPricePerUnit().toFixed(2)}`
-        );
-
-        this.ui.displayMessage(
-            `Total Item Cost    : ₹${item.getItemCost().toFixed(2)}`
-        );
-
-        this.ui.displayMessage(
-            `Total Tax          : ₹${item.calculateTotalTax().toFixed(2)}`
-        );
-
-        this.ui.displayMessage(
-            `Total Final Price  : ₹${item.calculateTotalFinalPrice().toFixed(2)}`
-        );
-
-        this.ui.displayMessage(
-            "----------------------------------------"
+        this.ui.displayError(
+            "An unexpected error occurred."
         );
     }
 }

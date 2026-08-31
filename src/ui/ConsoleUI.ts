@@ -1,4 +1,5 @@
 import * as readline from "readline";
+
 import { Item } from "../models/Item";
 import { ItemSummaryTotals } from "../utils/ItemSummaryCalculator";
 
@@ -26,9 +27,14 @@ export class ConsoleUI {
         item: Item
     ): void {
 
-        console.table([
-            item.getDisplayDetails()
-        ]);
+        this.displayDetails(
+            [
+                {
+                    ID: item.id,
+                    ...item.getDisplayDetails()
+                }
+            ]
+        );
     }
 
     displayItemSummary(
@@ -36,8 +42,13 @@ export class ConsoleUI {
         totals: ItemSummaryTotals
     ): void {
 
-        this.displayAllItemDetails(items);
-        this.displaySummaryTotals(totals);
+        this.displayAllItemDetails(
+            items
+        );
+
+        this.displaySummaryTotals(
+            totals
+        );
     }
 
     displayMessage(
@@ -57,6 +68,7 @@ export class ConsoleUI {
     }
 
     close(): void {
+
         this.rl.close();
     }
 
@@ -64,31 +76,43 @@ export class ConsoleUI {
         items: Item[]
     ): void {
 
-        const itemDetails = items.map(
-            (item) => ({
+        const itemDetails =
+            items.map((item) => ({
                 ID: item.id,
                 ...item.getDisplayDetails()
-            })
-        );
+            }));
 
-        console.table(itemDetails);
+        this.displayDetails(
+            itemDetails
+        );
     }
 
     private displaySummaryTotals(
         totals: ItemSummaryTotals
     ): void {
 
-        console.table([
-            {
-                "Total Item Cost":
-                    totals.totalItemCost.toFixed(2),
+        this.displayDetails(
+            [
+                {
+                    "Total Item Cost":
+                        totals.totalItemCost.toFixed(2),
 
-                "Total Tax":
-                    totals.totalTax.toFixed(2),
+                    "Total Tax":
+                        totals.totalTax.toFixed(2),
 
-                "Total Final Price":
-                    totals.totalFinalPrice.toFixed(2)
-            }
-        ]);
+                    "Total Final Price":
+                        totals.totalFinalPrice.toFixed(2)
+                }
+            ]
+        );
+    }
+
+    private displayDetails(
+        details: Record<string, string | number>[]
+    ): void {
+
+        console.table(
+            details
+        );
     }
 }

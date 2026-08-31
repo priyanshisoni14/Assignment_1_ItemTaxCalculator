@@ -1,21 +1,28 @@
 import { Item } from "../models/Item";
 import { InputParser } from "../parser/InputParser";
 import { ItemProcessor } from "../processor/ItemProcessor";
-
 import { ConsoleUI } from "../ui/ConsoleUI";
+import { ItemSummaryCalculator } from "../utils/ItemSummaryCalculator";
 
 export class Application {
 
     private readonly ui: ConsoleUI;
     private readonly processor: ItemProcessor;
+    private readonly summaryCalculator: ItemSummaryCalculator;
 
-    constructor(ui: ConsoleUI = new ConsoleUI()) {
+    constructor(
+        ui: ConsoleUI = new ConsoleUI()
+    ) {
+
         this.ui = ui;
 
         this.processor = new ItemProcessor(
             new InputParser(),
             this.ui
         );
+
+        this.summaryCalculator =
+            new ItemSummaryCalculator();
     }
 
     async run(): Promise<void> {
@@ -28,20 +35,18 @@ export class Application {
 
         await this.collectAdditionalItems(items);
 
-       
+        this.displayItemSummary(items);
 
-        this.ui.displayMessage(
-            "\nApplication terminated."
-        );
-
-        this.ui.close();
+        this.terminateApplication();
     }
 
     private processFirstItem(): Item[] | null {
 
-        const args = process.argv.slice(2);
+        const commandLineArguments =
+            process.argv.slice(2);
 
-        if (args.length === 0) {
+        if (commandLineArguments.length === 0) {
+
             this.ui.displayError(
                 "Please provide item details."
             );
@@ -51,7 +56,10 @@ export class Application {
             return null;
         }
 
-        const item = this.processor.process(args);
+        const item =
+            this.processor.process(
+                commandLineArguments
+            );
 
         return item ? [item] : [];
     }
@@ -62,20 +70,15 @@ export class Application {
 
         while (true) {
 
-            const answer = (
-                await this.ui.askQuestion(
-                    "\nDo you want to enter details of any other item (y/n): "
-                )
-            )
-                .trim()
-                .toLowerCase();
+            const answer =
+                await this.askToAddAnotherItem();
 
             if (answer === "n") {
                 return;
             }
 
             if (answer === "y") {
-                await this.addItem(items);
+                await this.collectAdditionalItem(items);
                 continue;
             }
 
@@ -85,18 +88,64 @@ export class Application {
         }
     }
 
-    private async addItem(items: Item[]): Promise<void> {
+    private async askToAddAnotherItem(): Promise<string> {
 
-        const input = await this.ui.askQuestion(
-            "Enter item details: "
-        );
+        return (
+            await this.ui.askQuestion(
+                "\nDo you want to enter details of any other item (y/n): "
+            )
+        )
+            .trim()
+            .toLowerCase();
+    }
 
-        const args = input.trim().split(/\s+/);
+    private async collectAdditionalItem(
+        items: Item[]
+    ): Promise<void> {
 
-        const item = this.processor.process(args);
+        const itemDetails =
+            await this.ui.askQuestion(
+                "Enter item details: "
+            );
+
+        const itemArguments =
+            itemDetails
+                .trim()
+                .split(/\s+/);
+
+        const item =
+            this.processor.process(
+                itemArguments
+            );
 
         if (item) {
+
             items.push(item);
+
+            this.ui.displayItemDetails(item);
         }
+    }
+
+    private displayItemSummary(
+        items: Item[]
+    ): void {
+
+        const totals =
+            this.summaryCalculator
+                .calculateTotals(items);
+
+        this.ui.displayItemSummary(
+            items,
+            totals
+        );
+    }
+
+    private terminateApplication(): void {
+
+        this.ui.displayMessage(
+            "\nApplication terminated."
+        );
+
+        this.ui.close();
     }
 }
