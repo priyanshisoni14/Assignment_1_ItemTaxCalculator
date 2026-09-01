@@ -9,15 +9,46 @@ export class InputParser {
             InputConfig
     ) {}
 
-    parse(
+    public parse(
         args: string[]
     ): Record<string, unknown> {
 
         if (args.length === 0) {
             throw new Error(
-                "Please provide item details."
+                "Please provide input details."
             );
         }
+
+        const input =
+            this.createInputRecord(
+                args
+            );
+
+        return this.parseRecord(
+            input
+        );
+    }
+
+    public parseRecord(
+        input: Record<string, string>
+    ): Record<string, unknown> {
+
+        this.validateRequiredOptions(
+            input
+        );
+
+        this.validateOptionValues(
+            input
+        );
+
+        return this.transformInputValues(
+            input
+        );
+    }
+
+    private createInputRecord(
+        args: string[]
+    ): Record<string, string> {
 
         const input:
             Record<string, string> = {};
@@ -31,7 +62,9 @@ export class InputParser {
             const option =
                 args[index];
 
-            this.validateOption(option);
+            this.validateOption(
+                option
+            );
 
             this.ensureOptionIsNotDuplicated(
                 input,
@@ -49,24 +82,16 @@ export class InputParser {
             index++;
         }
 
-        this.validateRequiredOptions(
-            input
-        );
-
-        this.validateOptionValues(
-            input
-        );
-
-        return this.transformInputValues(
-            input
-        );
+        return input;
     }
 
     private validateOption(
         option: string
     ): void {
 
-        if (!this.options[option]) {
+        if (
+            this.options[option] === undefined
+        ) {
             throw new Error(
                 `Unknown option: ${option}. Valid options are ${Object.keys(
                     this.options
@@ -80,7 +105,9 @@ export class InputParser {
         option: string
     ): void {
 
-        if (input[option] !== undefined) {
+        if (
+            input[option] !== undefined
+        ) {
             throw new Error(
                 `Duplicate option: ${option}.`
             );
@@ -104,7 +131,9 @@ export class InputParser {
         const trimmedValue =
             value.trim();
 
-        if (trimmedValue === "") {
+        if (
+            trimmedValue === ""
+        ) {
             throw new Error(
                 `Value for ${option} cannot be empty.`
             );
@@ -141,8 +170,25 @@ export class InputParser {
 
         for (
             const [option, value]
-            of Object.entries(input)
+            of Object.entries(
+                input
+            )
         ) {
+
+            this.validateOption(
+                option
+            );
+
+            const trimmedValue =
+                value.trim();
+
+            if (
+                trimmedValue === ""
+            ) {
+                throw new Error(
+                    `Value for ${option} cannot be empty.`
+                );
+            }
 
             const config =
                 this.options[option];
@@ -153,7 +199,9 @@ export class InputParser {
             ) {
 
                 if (
-                    !validation.validate(value)
+                    !validation.validate(
+                        trimmedValue
+                    )
                 ) {
                     throw new Error(
                         validation.errorMessage
@@ -172,7 +220,9 @@ export class InputParser {
 
         for (
             const [option, value]
-            of Object.entries(input)
+            of Object.entries(
+                input
+            )
         ) {
 
             const config =
@@ -180,8 +230,10 @@ export class InputParser {
 
             transformedInput[option] =
                 config.transform
-                    ? config.transform(value)
-                    : value;
+                    ? config.transform(
+                        value.trim()
+                    )
+                    : value.trim();
         }
 
         return transformedInput;
