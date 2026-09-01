@@ -33,4 +33,22 @@ export abstract class Item {
     calculateTotalFinalPrice(): number {
         return this.calculateFinalPricePerUnit() * this.quantity;
     }
+
+    getDisplayDetails(): Record<string, string | number> {
+
+        return {
+            Name: this.name,
+            Type: this.getType(),
+            Price: this.price,
+            Quantity: this.quantity,
+            "Tax Per Unit":
+                this.calculateTaxPerUnit(),
+            "Total Tax":
+                this.calculateTotalTax(),
+            "Final Price Per Unit":
+                this.calculateFinalPricePerUnit(),
+            "Total Final Price":
+                this.calculateTotalFinalPrice()
+        };
+    }
 }

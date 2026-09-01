@@ -1,4 +1,4 @@
-import { ItemFactory } from "../src/services/ItemFactory";
+import { ItemFactory } from "../src/factory/ItemFactory";
 import { RawItem } from "../src/models/RawItem";
 import { ManufacturedItem } from "../src/models/ManufacturedItem";
 import { ImportedItem } from "../src/models/ImportedItem";
