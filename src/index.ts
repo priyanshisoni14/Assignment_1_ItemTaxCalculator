@@ -1,3 +1,5 @@
 import { Application } from "./application/Application";
 
-new Application().run();
+Application
+    .getInstance()
+    .run();

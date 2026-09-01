@@ -1,21 +1,24 @@
-import { Application } from "../src/application/Application";
 import { ConsoleUI } from "../src/ui/ConsoleUI";
+
+type MockUI = jest.Mocked<
+    Pick<
+        ConsoleUI,
+        | "askQuestion"
+        | "displayMessage"
+        | "displayError"
+        | "displayItemDetails"
+        | "displayItemSummary"
+        | "close"
+    >
+>;
 
 describe("Application", () => {
 
-    let mockUI: jest.Mocked<
-        Pick<
-            ConsoleUI,
-            | "askQuestion"
-            | "displayMessage"
-            | "displayError"
-            | "displayItemDetails"
-            | "displayItemSummary"
-            | "close"
-        >
-    >;
+    let mockUI: MockUI;
 
     beforeEach(() => {
+
+        jest.resetModules();
 
         mockUI = {
             askQuestion: jest.fn(),
@@ -31,6 +34,30 @@ describe("Application", () => {
 
         jest.restoreAllMocks();
     });
+
+    async function runApplication():
+        Promise<void> {
+
+        jest.doMock(
+            "../src/ui/ConsoleUI",
+            () => ({
+                ConsoleUI: jest.fn(
+                    () => mockUI
+                )
+            })
+        );
+
+        const {
+            Application
+        } = await import(
+            "../src/application/Application"
+        );
+
+        const application =
+            Application.getInstance();
+
+        await application.run();
+    }
 
     test(
         "should read item details from command line",
@@ -57,12 +84,7 @@ describe("Application", () => {
                     "n"
                 );
 
-            const application =
-                new Application(
-                    mockUI as unknown as ConsoleUI
-                );
-
-            await application.run();
+            await runApplication();
 
             expect(
                 mockUI.displayItemDetails
@@ -112,12 +134,7 @@ describe("Application", () => {
                     "n"
                 );
 
-            const application =
-                new Application(
-                    mockUI as unknown as ConsoleUI
-                );
-
-            await application.run();
+            await runApplication();
 
             expect(
                 mockUI.displayItemDetails
@@ -164,12 +181,7 @@ describe("Application", () => {
                     "n"
                 );
 
-            const application =
-                new Application(
-                    mockUI as unknown as ConsoleUI
-                );
-
-            await application.run();
+            await runApplication();
 
             expect(
                 mockUI.displayMessage
@@ -198,12 +210,7 @@ describe("Application", () => {
                 "index.js"
             ];
 
-            const application =
-                new Application(
-                    mockUI as unknown as ConsoleUI
-                );
-
-            await application.run();
+            await runApplication();
 
             expect(
                 mockUI.displayError

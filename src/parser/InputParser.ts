@@ -1,6 +1,6 @@
 import {
     InputConfig
-} from "../config/InputConfig";
+} from "../models/InputConfig";
 
 export class InputParser {
 
