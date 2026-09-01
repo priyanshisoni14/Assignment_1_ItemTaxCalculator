@@ -5,6 +5,7 @@ import { ItemProcessor } from "../processor/ItemProcessor";
 import { ConsoleUI } from "../ui/ConsoleUI";
 import { ItemInputMapper } from "../utils/ItemInputMapper";
 import { ItemSummaryCalculator } from "../utils/ItemSummaryCalculator";
+import { ItemDisplayMapper } from "../utils/ItemDisplayMapper";
 
 export class Application {
 
@@ -14,6 +15,8 @@ export class Application {
     private readonly processor: ItemProcessor;
     private readonly summaryCalculator:
         ItemSummaryCalculator;
+    private readonly itemDisplayMapper:
+    ItemDisplayMapper;
 
     private constructor() {
 
@@ -30,6 +33,10 @@ export class Application {
 
         this.summaryCalculator =
             new ItemSummaryCalculator();
+        
+            this.itemDisplayMapper =
+               new ItemDisplayMapper();
+        
     }
 
     public static getInstance(): Application {
@@ -178,9 +185,13 @@ export class Application {
 
             items.push(item);
 
-            this.ui.displayItemDetails(
-                item
-            );
+            this.ui.displayTable(
+    [
+        this.itemDisplayMapper.mapItem(
+            item
+        )
+    ]
+);
 
         } catch (error) {
 
@@ -216,10 +227,19 @@ export class Application {
             this.summaryCalculator
                 .calculateTotals(items);
 
-        this.ui.displayItemSummary(
-            items,
+       this.ui.displayTable(
+    this.itemDisplayMapper.mapItems(
+        items
+    )
+);
+
+this.ui.displayTable(
+    [
+        this.itemDisplayMapper.mapSummary(
             totals
-        );
+        )
+    ]
+);
     }
 
     private terminateApplication():
