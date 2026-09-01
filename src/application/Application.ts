@@ -1,5 +1,5 @@
 import { itemInputConfig } from "../config/ItemInputConfig";
-import { Item } from "../models/Item";
+import { Item } from "../models/assignment1/Item";
 import { InputParser } from "../parser/InputParser";
 import { ItemProcessor } from "../processor/ItemProcessor";
 import { ConsoleUI } from "../ui/ConsoleUI";

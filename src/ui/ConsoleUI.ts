@@ -1,6 +1,6 @@
 import * as readline from "readline";
 
-import { Item } from "../models/Item";
+import { Item } from "../models/assignment1/Item";
 import { ItemSummaryTotals } from "../utils/ItemSummaryCalculator";
 
 export class ConsoleUI {

@@ -1,5 +1,5 @@
-import { ParsedItemInput } from "../models/ParsedItemInput";
-import { ItemType } from "../models/ItemType";
+import { ParsedItemInput } from "../models/assignment1/ParsedItemInput";
+import { ItemType } from "../models/assignment1/ItemType";
 
 export class ItemInputMapper {
 

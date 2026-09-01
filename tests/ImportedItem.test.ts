@@ -1,4 +1,4 @@
-import { ImportedItem } from "../src/models/ImportedItem";
+import { ImportedItem } from "../src/models/assignment1/ImportedItem";
 
 describe("ImportedItem", () => {
 

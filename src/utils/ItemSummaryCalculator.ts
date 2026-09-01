@@ -1,4 +1,4 @@
-import { Item } from "../models/Item";
+import { Item } from "../models/assignment1/Item";
 
 export interface ItemSummaryTotals {
     totalItemCost: number;

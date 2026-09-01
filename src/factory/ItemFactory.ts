@@ -1,8 +1,8 @@
-import { Item } from "../models/Item";
-import { RawItem } from "../models/RawItem";
-import { ManufacturedItem } from "../models/ManufacturedItem";
-import { ImportedItem } from "../models/ImportedItem";
-import { ParsedItemInput } from "../models/ParsedItemInput";
+import { Item } from "../models/assignment1/Item";
+import { RawItem } from "../models/assignment1/RawItem";
+import { ManufacturedItem } from "../models/assignment1/ManufacturedItem";
+import { ImportedItem } from "../models/assignment1/ImportedItem";
+import { ParsedItemInput } from "../models/assignment1/ParsedItemInput";
 
 export class ItemFactory {
 
