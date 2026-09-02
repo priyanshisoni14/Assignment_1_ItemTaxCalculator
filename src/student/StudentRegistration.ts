@@ -63,6 +63,17 @@ export class StudentRegistration {
                 parsedRecord.courses as StudentInput["courses"]
         };
 
+        const existingStudent =
+            this.studentManager.findStudentByRollNumber(
+                studentInput.rollNumber
+            );
+
+        if (existingStudent !== undefined) {
+            throw new Error(
+                `A student with roll number ${studentInput.rollNumber} already exists.`
+            );
+        }
+
         const student =
             this.studentFactory.create(
                 studentInput
