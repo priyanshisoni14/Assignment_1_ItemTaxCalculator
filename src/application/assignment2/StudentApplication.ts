@@ -22,7 +22,6 @@ export class StudentApplication {
 
     private static instance: StudentApplication;
 
-    private readonly ui: ConsoleUI;
     private readonly studentManager: StudentManager;
     private readonly studentRegistration: StudentRegistration;
     private readonly studentDisplay: StudentDisplay;
@@ -30,11 +29,12 @@ export class StudentApplication {
     private readonly studentSerializer: StudentSerializer;
     private readonly commandRegistry: CommandRegistry;
 
-    private constructor() {
+    private constructor(
+        private readonly ui: ConsoleUI
+    ) {
 
-        this.ui = new ConsoleUI();
-
-        this.studentManager = new StudentManager();
+        this.studentManager =
+            new StudentManager();
 
         this.studentRegistration =
             new StudentRegistration(
@@ -104,11 +104,15 @@ export class StudentApplication {
             );
     }
 
-    public static getInstance(): StudentApplication {
+    public static getInstance(
+        ui: ConsoleUI
+    ): StudentApplication {
 
-        if (StudentApplication.instance === undefined) {
+        if (
+            StudentApplication.instance === undefined
+        ) {
             StudentApplication.instance =
-                new StudentApplication();
+                new StudentApplication(ui);
         }
 
         return StudentApplication.instance;
@@ -133,17 +137,17 @@ export class StudentApplication {
                 );
 
             if (command === undefined) {
+
                 this.ui.displayMessage(
                     "Invalid option. Please select an option from 1 to 5."
                 );
+
                 continue;
             }
 
             isRunning =
                 await command.execute();
         }
-
-        this.ui.close();
     }
 
     private displayMenu(): void {

@@ -1,27 +1,25 @@
-import { itemInputConfig } from "../../config/assignment1/ItemInputConfig";
-import { Item } from "../../models/assignment1/Item";
-import { InputParser } from "../../parser/InputParser";
-import { ItemProcessor } from "../../processor/ItemProcessor";
-import { ConsoleUI } from "../../ui/ConsoleUI";
-import { ItemInputMapper } from "../../utils/ItemInputMapper";
-import { ItemSummaryCalculator } from "../../utils/ItemSummaryCalculator";
-import { ItemDisplayMapper } from "../../utils/ItemDisplayMapper";
+import {itemInputConfig} from "../../config/assignment1/ItemInputConfig";
+import {Item} from "../../models/assignment1/Item";
+import {InputParser} from "../../parser/InputParser";
+import {ItemProcessor} from "../../processor/ItemProcessor";
+import {ConsoleUI} from "../../ui/ConsoleUI";
+import {ItemInputMapper} from "../../utils/ItemInputMapper";
+import {ItemSummaryCalculator} from "../../utils/ItemSummaryCalculator";
+import {ItemDisplayMapper} from "../../utils/ItemDisplayMapper";
 
 export class Application {
 
     private static instance: Application;
 
-    private readonly ui: ConsoleUI;
     private readonly processor: ItemProcessor;
     private readonly summaryCalculator:
         ItemSummaryCalculator;
     private readonly itemDisplayMapper:
-    ItemDisplayMapper;
+        ItemDisplayMapper;
 
-    private constructor() {
-
-        this.ui =
-            new ConsoleUI();
+    private constructor(
+        private readonly ui: ConsoleUI
+    ) {
 
         this.processor =
             new ItemProcessor(
@@ -33,37 +31,34 @@ export class Application {
 
         this.summaryCalculator =
             new ItemSummaryCalculator();
-        
-            this.itemDisplayMapper =
-               new ItemDisplayMapper();
-        
+
+        this.itemDisplayMapper =
+            new ItemDisplayMapper();
     }
 
-    public static getInstance(): Application {
+    public static getInstance(
+        ui: ConsoleUI
+    ): Application {
 
         if (
             Application.instance === undefined
         ) {
             Application.instance =
-                new Application();
+                new Application(ui);
         }
 
         return Application.instance;
     }
 
-    async run(): Promise<void> {
+    public async run(): Promise<void> {
 
-        // Process the first item provided
-        // through command-line arguments.
         const items =
-            this.processFirstItem();
+            await this.processFirstItem();
 
         if (items === null) {
             return;
         }
 
-        // Continue asking for another item
-        // until the user chooses to stop.
         let shouldCollectAnotherItem =
             true;
 
@@ -72,8 +67,6 @@ export class Application {
             const answer =
                 await this.askToAddAnotherItem();
 
-            // Collect and handle another item
-            // when the user chooses yes.
             if (answer === "y") {
 
                 await this.collectAdditionalItem(
@@ -83,8 +76,6 @@ export class Application {
                 continue;
             }
 
-            // Stop collecting items when
-            // the user chooses no.
             if (answer === "n") {
 
                 shouldCollectAnotherItem =
@@ -93,44 +84,54 @@ export class Application {
                 continue;
             }
 
-            // Ask again when the user provides
-            // an invalid response.
             this.ui.displayMessage(
                 "Invalid input. Please enter y or n."
             );
         }
 
-        // Display the combined summary
-        // after all items are collected.
-        this.displayItemSummary(
-            items
-        );
+        this.displayItemSummary(items);
 
-        this.terminateApplication();
+        this.ui.displayMessage(
+            "\nItem Tax Calculator completed."
+        );
     }
 
-    private processFirstItem():
-        Item[] | null {
+    private async processFirstItem():
+        Promise<Item[] | null> {
 
         const commandLineArguments =
             process.argv.slice(2);
 
-        if (
-            commandLineArguments.length === 0
-        ) {
+        const items: Item[] = [];
+
+        if (commandLineArguments.length > 0) {
+
+            this.handleItem(
+                commandLineArguments,
+                items
+            );
+
+            return items;
+        }
+
+        const itemDetails =
+            await this.ui.askQuestion(
+                "\nEnter item details: "
+            );
+
+        if (itemDetails.trim().length === 0) {
+
             this.ui.displayError(
                 "Please provide item details."
             );
 
-            this.ui.close();
-
             return null;
         }
 
-        const items: Item[] = [];
-
         this.handleItem(
-            commandLineArguments,
+            itemDetails
+                .trim()
+                .split(/\s+/),
             items
         );
 
@@ -169,8 +170,6 @@ export class Application {
         );
     }
 
-    // Processes the item input, adds the created item
-    // to the collection, and displays its details.
     private handleItem(
         itemArguments: string[],
         items: Item[]
@@ -186,18 +185,16 @@ export class Application {
             items.push(item);
 
             this.ui.displayTable(
-    [
-        this.itemDisplayMapper.mapItem(
-            item
-        )
-    ]
-);
+                [
+                    this.itemDisplayMapper.mapItem(
+                        item
+                    )
+                ]
+            );
 
         } catch (error) {
 
-            this.displayProcessingError(
-                error
-            );
+            this.displayProcessingError(error);
         }
     }
 
@@ -227,28 +224,16 @@ export class Application {
             this.summaryCalculator
                 .calculateTotals(items);
 
-       this.ui.displayTable(
-    this.itemDisplayMapper.mapItems(
-        items
-    )
-);
-
-this.ui.displayTable(
-    [
-        this.itemDisplayMapper.mapSummary(
-            totals
-        )
-    ]
-);
-    }
-
-    private terminateApplication():
-        void {
-
-        this.ui.displayMessage(
-            "\nApplication terminated."
+        this.ui.displayTable(
+            this.itemDisplayMapper.mapItems(items)
         );
 
-        this.ui.close();
+        this.ui.displayTable(
+            [
+                this.itemDisplayMapper.mapSummary(
+                    totals
+                )
+            ]
+        );
     }
 }
