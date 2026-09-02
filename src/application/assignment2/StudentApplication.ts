@@ -5,44 +5,32 @@ import {StudentInputCollector} from "../../student/StudentInputCollector";
 import {StudentManager} from "../../student/StudentManager";
 import {StudentRegistration} from "../../student/StudentRegistration";
 import {StudentDisplay} from "../../student/StudentDisplay";
+import {StudentDeletion} from "../../student/StudentDeletion";
 import {StudentSorter} from "../../sorter/StudentSorter";
 import {ConsoleUI} from "../../ui/ConsoleUI";
 
 
 export class StudentApplication {
 
-    private static instance:
-        StudentApplication;
+    private static instance: StudentApplication;
 
-    private readonly ui:
-        ConsoleUI;
-
-    private readonly studentManager:
-        StudentManager;
-
-    private readonly studentRegistration:
-        StudentRegistration;
-
-    private readonly studentDisplay:
-        StudentDisplay;
+    private readonly ui: ConsoleUI;
+    private readonly studentManager: StudentManager;
+    private readonly studentRegistration: StudentRegistration;
+    private readonly studentDisplay: StudentDisplay;
+    private readonly studentDeletion: StudentDeletion;
 
 
     private constructor() {
 
-        this.ui =
-            new ConsoleUI();
+        this.ui = new ConsoleUI();
 
-        this.studentManager =
-            new StudentManager();
+        this.studentManager = new StudentManager();
 
         this.studentRegistration =
             new StudentRegistration(
-                new StudentInputCollector(
-                    this.ui
-                ),
-                new InputParser(
-                    studentInputConfig
-                ),
+                new StudentInputCollector(this.ui),
+                new InputParser(studentInputConfig),
                 new StudentFactory(),
                 this.studentManager
             );
@@ -53,17 +41,18 @@ export class StudentApplication {
                 new StudentSorter(),
                 this.ui
             );
+
+        this.studentDeletion =
+            new StudentDeletion(
+                this.studentManager,
+                this.ui
+            );
     }
 
 
-    public static getInstance():
-        StudentApplication {
+    public static getInstance(): StudentApplication {
 
-        if (
-            StudentApplication.instance ===
-            undefined
-        ) {
-
+        if (StudentApplication.instance === undefined) {
             StudentApplication.instance =
                 new StudentApplication();
         }
@@ -72,11 +61,9 @@ export class StudentApplication {
     }
 
 
-    public async run():
-        Promise<void> {
+    public async run(): Promise<void> {
 
-        let isRunning =
-            true;
+        let isRunning = true;
 
         while (isRunning) {
 
@@ -88,48 +75,28 @@ export class StudentApplication {
             switch (selectedOption) {
 
                 case "1":
-
                     await this.registerStudent();
-
                     break;
-
 
                 case "2":
-
-                    await this.studentDisplay
-                        .displayStudents();
-
+                    await this.studentDisplay.displayStudents();
                     break;
-
 
                 case "3":
-
-                    this.ui.displayMessage(
-                        "Delete user details is not implemented yet."
-                    );
-
+                    await this.studentDeletion.deleteStudent();
                     break;
 
-
                 case "4":
-
                     this.ui.displayMessage(
                         "Save user details is not implemented yet."
                     );
-
                     break;
-
 
                 case "5":
-
-                    isRunning =
-                        false;
-
+                    isRunning = false;
                     break;
 
-
                 default:
-
                     this.ui.displayMessage(
                         "Invalid option. Please select an option from 1 to 5."
                     );
@@ -140,8 +107,7 @@ export class StudentApplication {
     }
 
 
-    private displayMenu():
-        void {
+    private displayMenu(): void {
 
         this.ui.displayMessage(
             [
@@ -156,25 +122,21 @@ export class StudentApplication {
     }
 
 
-    private async getMenuOption():
-        Promise<string> {
+    private async getMenuOption(): Promise<string> {
 
         return (
             await this.ui.askQuestion(
                 "\nSelect an option: "
             )
-        )
-            .trim();
+        ).trim();
     }
 
 
-    private async registerStudent():
-        Promise<void> {
+    private async registerStudent(): Promise<void> {
 
         try {
 
-            await this.studentRegistration
-                .registerStudent();
+            await this.studentRegistration.registerStudent();
 
             this.ui.displayMessage(
                 "Student added successfully."
@@ -187,9 +149,7 @@ export class StudentApplication {
                     ? error.message
                     : "An unexpected error occurred.";
 
-            this.ui.displayError(
-                message
-            );
+            this.ui.displayError(message);
         }
     }
 }
