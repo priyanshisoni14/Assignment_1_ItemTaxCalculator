@@ -1,0 +1,14 @@
+[
+  {
+    "fullName": "pree",
+    "age": 21,
+    "address": "usha nagar",
+    "rollNumber": 49,
+    "courses": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ]
+  }
+]

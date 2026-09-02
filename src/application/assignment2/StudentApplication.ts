@@ -6,9 +6,9 @@ import {StudentManager} from "../../student/StudentManager";
 import {StudentRegistration} from "../../student/StudentRegistration";
 import {StudentDisplay} from "../../student/StudentDisplay";
 import {StudentDeletion} from "../../student/StudentDeletion";
+import {StudentSerializer} from "../../student/StudentSerializer";
 import {StudentSorter} from "../../sorter/StudentSorter";
 import {ConsoleUI} from "../../ui/ConsoleUI";
-
 
 export class StudentApplication {
 
@@ -19,7 +19,7 @@ export class StudentApplication {
     private readonly studentRegistration: StudentRegistration;
     private readonly studentDisplay: StudentDisplay;
     private readonly studentDeletion: StudentDeletion;
-
+    private readonly studentSerializer: StudentSerializer;
 
     private constructor() {
 
@@ -47,8 +47,12 @@ export class StudentApplication {
                 this.studentManager,
                 this.ui
             );
-    }
 
+        this.studentSerializer =
+            new StudentSerializer(
+                "students.json"
+            );
+    }
 
     public static getInstance(): StudentApplication {
 
@@ -60,8 +64,9 @@ export class StudentApplication {
         return StudentApplication.instance;
     }
 
-
     public async run(): Promise<void> {
+
+        await this.loadStudents();
 
         let isRunning = true;
 
@@ -87,13 +92,12 @@ export class StudentApplication {
                     break;
 
                 case "4":
-                    this.ui.displayMessage(
-                        "Save user details is not implemented yet."
-                    );
+                    await this.saveStudents();
                     break;
 
                 case "5":
-                    isRunning = false;
+                    isRunning =
+                        !(await this.confirmExit());
                     break;
 
                 default:
@@ -105,7 +109,6 @@ export class StudentApplication {
 
         this.ui.close();
     }
-
 
     private displayMenu(): void {
 
@@ -121,7 +124,6 @@ export class StudentApplication {
         );
     }
 
-
     private async getMenuOption(): Promise<string> {
 
         return (
@@ -130,7 +132,6 @@ export class StudentApplication {
             )
         ).trim();
     }
-
 
     private async registerStudent(): Promise<void> {
 
@@ -150,6 +151,89 @@ export class StudentApplication {
                     : "An unexpected error occurred.";
 
             this.ui.displayError(message);
+        }
+    }
+
+    private async saveStudents(): Promise<void> {
+
+        try {
+
+            await this.studentSerializer.save(
+                this.studentManager.getStudents()
+            );
+
+            this.ui.displayMessage(
+                "User details saved successfully."
+            );
+
+        } catch (error) {
+
+            const message =
+                error instanceof Error
+                    ? error.message
+                    : "Unable to save user details.";
+
+            this.ui.displayError(message);
+        }
+    }
+
+    private async loadStudents(): Promise<void> {
+
+        try {
+
+            const students =
+                await this.studentSerializer.load();
+
+            this.studentManager.setStudents(
+                students
+            );
+
+        } catch (error) {
+
+            const message =
+                error instanceof Error
+                    ? error.message
+                    : "Unable to load user details.";
+
+            this.ui.displayError(message);
+        }
+    }
+
+    private async confirmExit(): Promise<boolean> {
+
+        const saveChanges =
+            await this.ui.askQuestion(
+                "\nDo you want to save latest changes? (y/n): "
+            );
+
+        if (
+            saveChanges.trim().toLowerCase() !== "y"
+        ) {
+            return true;
+        }
+
+        try {
+
+            await this.studentSerializer.save(
+                this.studentManager.getStudents()
+            );
+
+            this.ui.displayMessage(
+                "User details saved successfully."
+            );
+
+            return true;
+
+        } catch (error) {
+
+            const message =
+                error instanceof Error
+                    ? error.message
+                    : "Unable to save user details.";
+
+            this.ui.displayError(message);
+
+            return false;
         }
     }
 }
