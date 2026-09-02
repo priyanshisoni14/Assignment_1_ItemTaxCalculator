@@ -10,6 +10,14 @@ import {StudentSerializer} from "../../student/StudentSerializer";
 import {StudentSorter} from "../../sorter/StudentSorter";
 import {ConsoleUI} from "../../ui/ConsoleUI";
 
+import {Command} from "../../command/assignment2/Command";
+import {CommandRegistry} from "../../command/assignment2/CommandRegistry";
+import {AddStudentCommand} from "../../command/assignment2/AddStudentCommand";
+import {DisplayStudentCommand} from "../../command/assignment2/DisplayStudentCommand";
+import {DeleteStudentCommand} from "../../command/assignment2/DeleteStudentCommand";
+import {SaveStudentCommand} from "../../command/assignment2/SaveStudentCommand";
+import {ExitCommand} from "../../command/assignment2/ExitCommand";
+
 export class StudentApplication {
 
     private static instance: StudentApplication;
@@ -20,6 +28,7 @@ export class StudentApplication {
     private readonly studentDisplay: StudentDisplay;
     private readonly studentDeletion: StudentDeletion;
     private readonly studentSerializer: StudentSerializer;
+    private readonly commandRegistry: CommandRegistry;
 
     private constructor() {
 
@@ -52,6 +61,47 @@ export class StudentApplication {
             new StudentSerializer(
                 "students.json"
             );
+
+        this.commandRegistry =
+            new CommandRegistry(
+                new Map<string, Command>([
+                    [
+                        "1",
+                        new AddStudentCommand(
+                            this.studentRegistration,
+                            this.ui
+                        )
+                    ],
+                    [
+                        "2",
+                        new DisplayStudentCommand(
+                            this.studentDisplay
+                        )
+                    ],
+                    [
+                        "3",
+                        new DeleteStudentCommand(
+                            this.studentDeletion
+                        )
+                    ],
+                    [
+                        "4",
+                        new SaveStudentCommand(
+                            this.studentManager,
+                            this.studentSerializer,
+                            this.ui
+                        )
+                    ],
+                    [
+                        "5",
+                        new ExitCommand(
+                            this.studentManager,
+                            this.studentSerializer,
+                            this.ui
+                        )
+                    ]
+                ])
+            );
     }
 
     public static getInstance(): StudentApplication {
@@ -77,34 +127,20 @@ export class StudentApplication {
             const selectedOption =
                 await this.getMenuOption();
 
-            switch (selectedOption) {
+            const command =
+                this.commandRegistry.getCommand(
+                    selectedOption
+                );
 
-                case "1":
-                    await this.registerStudent();
-                    break;
-
-                case "2":
-                    await this.studentDisplay.displayStudents();
-                    break;
-
-                case "3":
-                    await this.studentDeletion.deleteStudent();
-                    break;
-
-                case "4":
-                    await this.saveStudents();
-                    break;
-
-                case "5":
-                    isRunning =
-                        !(await this.confirmExit());
-                    break;
-
-                default:
-                    this.ui.displayMessage(
-                        "Invalid option. Please select an option from 1 to 5."
-                    );
+            if (command === undefined) {
+                this.ui.displayMessage(
+                    "Invalid option. Please select an option from 1 to 5."
+                );
+                continue;
             }
+
+            isRunning =
+                await command.execute();
         }
 
         this.ui.close();
@@ -133,50 +169,6 @@ export class StudentApplication {
         ).trim();
     }
 
-    private async registerStudent(): Promise<void> {
-
-        try {
-
-            await this.studentRegistration.registerStudent();
-
-            this.ui.displayMessage(
-                "Student added successfully."
-            );
-
-        } catch (error) {
-
-            const message =
-                error instanceof Error
-                    ? error.message
-                    : "An unexpected error occurred.";
-
-            this.ui.displayError(message);
-        }
-    }
-
-    private async saveStudents(): Promise<void> {
-
-        try {
-
-            await this.studentSerializer.save(
-                this.studentManager.getStudents()
-            );
-
-            this.ui.displayMessage(
-                "User details saved successfully."
-            );
-
-        } catch (error) {
-
-            const message =
-                error instanceof Error
-                    ? error.message
-                    : "Unable to save user details.";
-
-            this.ui.displayError(message);
-        }
-    }
-
     private async loadStudents(): Promise<void> {
 
         try {
@@ -196,44 +188,6 @@ export class StudentApplication {
                     : "Unable to load user details.";
 
             this.ui.displayError(message);
-        }
-    }
-
-    private async confirmExit(): Promise<boolean> {
-
-        const saveChanges =
-            await this.ui.askQuestion(
-                "\nDo you want to save latest changes? (y/n): "
-            );
-
-        if (
-            saveChanges.trim().toLowerCase() !== "y"
-        ) {
-            return true;
-        }
-
-        try {
-
-            await this.studentSerializer.save(
-                this.studentManager.getStudents()
-            );
-
-            this.ui.displayMessage(
-                "User details saved successfully."
-            );
-
-            return true;
-
-        } catch (error) {
-
-            const message =
-                error instanceof Error
-                    ? error.message
-                    : "Unable to save user details.";
-
-            this.ui.displayError(message);
-
-            return false;
         }
     }
 }
