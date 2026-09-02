@@ -1,5 +1,5 @@
 import { Item } from "../models/assignment1/Item";
-import { ItemFactory } from "../factory/ItemFactory";
+import { ItemFactory } from "../factory/assignment1/ItemFactory";
 import { InputParser } from "../parser/InputParser";
 import { ItemInputMapper } from "../utils/ItemInputMapper";
 

@@ -1,11 +1,11 @@
-import { itemInputConfig } from "../config/ItemInputConfig";
-import { Item } from "../models/assignment1/Item";
-import { InputParser } from "../parser/InputParser";
-import { ItemProcessor } from "../processor/ItemProcessor";
-import { ConsoleUI } from "../ui/ConsoleUI";
-import { ItemInputMapper } from "../utils/ItemInputMapper";
-import { ItemSummaryCalculator } from "../utils/ItemSummaryCalculator";
-import { ItemDisplayMapper } from "../utils/ItemDisplayMapper";
+import { itemInputConfig } from "../../config/assignment1/ItemInputConfig";
+import { Item } from "../../models/assignment1/Item";
+import { InputParser } from "../../parser/InputParser";
+import { ItemProcessor } from "../../processor/ItemProcessor";
+import { ConsoleUI } from "../../ui/ConsoleUI";
+import { ItemInputMapper } from "../../utils/ItemInputMapper";
+import { ItemSummaryCalculator } from "../../utils/ItemSummaryCalculator";
+import { ItemDisplayMapper } from "../../utils/ItemDisplayMapper";
 
 export class Application {
 

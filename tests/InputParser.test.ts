@@ -1,5 +1,5 @@
 import { InputParser } from "../src/parser/InputParser";
-import { itemInputConfig } from "../src/config/ItemInputConfig";
+import {itemInputConfig} from "../src/config/assignment1/ItemInputConfig";
 
 describe("InputParser", () => {
 
@@ -84,7 +84,7 @@ describe("InputParser", () => {
             expect(() =>
                 parser.parse([])
             ).toThrow(
-                "Please provide item details."
+                "Please provide input details."
             );
         }
     );

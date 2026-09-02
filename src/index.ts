@@ -1,4 +1,4 @@
-import { Application } from "./application/Application";
+import { Application } from "./application/assignment1/Application";
 
 Application
     .getInstance()

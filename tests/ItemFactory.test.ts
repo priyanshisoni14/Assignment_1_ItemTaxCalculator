@@ -1,8 +1,12 @@
-import { ItemFactory } from "../src/factory/ItemFactory";
-import { RawItem } from "../src/models/assignment1/RawItem";
-import { ManufacturedItem } from "../src/models/assignment1/ManufacturedItem";
-import { ImportedItem } from "../src/models/assignment1/ImportedItem";
+import { ItemFactory } from "../src/factory/assignment1/ItemFactory";
+import { RawItem }
+    from "../src/models/assignment1/RawItem";
 
+import { ManufacturedItem }
+    from "../src/models/assignment1/ManufacturedItem";
+
+import { ImportedItem }
+    from "../src/models/assignment1/ImportedItem";
 describe("ItemFactory", () => {
 
     it("should create a RawItem", () => {

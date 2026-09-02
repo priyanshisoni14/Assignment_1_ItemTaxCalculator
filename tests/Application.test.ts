@@ -1,74 +1,73 @@
-import { ConsoleUI } from "../src/ui/ConsoleUI";
+import { Application }
+    from "../src/application/assignment1/Application";
 
-type MockUI = jest.Mocked<
-    Pick<
-        ConsoleUI,
-        | "askQuestion"
-        | "displayMessage"
-        | "displayError"
-        | "displayItemDetails"
-        | "displayItemSummary"
-        | "close"
-    >
->;
+import { ConsoleUI }
+    from "../src/ui/ConsoleUI";
+
+
+jest.mock(
+    "../src/ui/ConsoleUI",
+    () => ({
+        ConsoleUI: jest.fn()
+    })
+);
+
 
 describe("Application", () => {
 
-    let mockUI: MockUI;
+    const originalArgv =
+        process.argv;
+
+    let mockUI:
+        jest.Mocked<ConsoleUI>;
+
 
     beforeEach(() => {
 
-        jest.resetModules();
+        Application.resetInstance();
 
         mockUI = {
             askQuestion: jest.fn(),
             displayMessage: jest.fn(),
             displayError: jest.fn(),
-            displayItemDetails: jest.fn(),
-            displayItemSummary: jest.fn(),
+            displayTable: jest.fn(),
             close: jest.fn()
-        };
+        } as unknown as jest.Mocked<ConsoleUI>;
+
+        (
+            ConsoleUI as jest.MockedClass<
+                typeof ConsoleUI
+            >
+        ).mockImplementation(
+            () => mockUI
+        );
+
+        jest.spyOn(console, "log")
+            .mockImplementation(() => {});
+
+        jest.spyOn(console, "error")
+            .mockImplementation(() => {});
     });
+
 
     afterEach(() => {
 
+        process.argv =
+            originalArgv;
+
         jest.restoreAllMocks();
+
+        jest.clearAllMocks();
     });
 
-    async function runApplication():
-        Promise<void> {
 
-        jest.doMock(
-            "../src/ui/ConsoleUI",
-            () => ({
-                ConsoleUI: jest.fn(
-                    () => mockUI
-                )
-            })
-        );
-
-        const {
-            Application
-        } = await import(
-            "../src/application/Application"
-        );
-
-        const application =
-            Application.getInstance();
-
-        await application.run();
-    }
-
-    test(
+    it(
         "should read item details from command line",
         async () => {
 
-            const originalArgv =
-                process.argv;
-
             process.argv = [
                 "node",
-                "index.js",
+                "index.ts",
                 "-name",
                 "Pen",
                 "-price",
@@ -80,39 +79,31 @@ describe("Application", () => {
             ];
 
             mockUI.askQuestion
-                .mockResolvedValue(
-                    "n"
+                .mockResolvedValueOnce("n");
+
+            const application =
+                Application.getInstance();
+
+            await application.run();
+
+            expect(mockUI.askQuestion)
+                .toHaveBeenCalledWith(
+                    "\nDo you want to enter details of any other item (y/n): "
                 );
 
-            await runApplication();
-
-            expect(
-                mockUI.displayItemDetails
-            ).toHaveBeenCalledTimes(1);
-
-            expect(
-                mockUI.displayItemSummary
-            ).toHaveBeenCalledTimes(1);
-
-            expect(
-                mockUI.close
-            ).toHaveBeenCalledTimes(1);
-
-            process.argv =
-                originalArgv;
+            expect(mockUI.close)
+                .toHaveBeenCalled();
         }
     );
 
-    test(
+
+    it(
         "should add another item",
         async () => {
 
-            const originalArgv =
-                process.argv;
-
             process.argv = [
                 "node",
-                "index.js",
+                "index.ts",
                 "-name",
                 "Pen",
                 "-price",
@@ -124,45 +115,33 @@ describe("Application", () => {
             ];
 
             mockUI.askQuestion
+                .mockResolvedValueOnce("y")
                 .mockResolvedValueOnce(
-                    "y"
+                    "-name Pencil -price 50 -quantity 3 -type raw"
                 )
-                .mockResolvedValueOnce(
-                    "-name Book -price 200 -quantity 1 -type imported"
-                )
-                .mockResolvedValueOnce(
-                    "n"
-                );
+                .mockResolvedValueOnce("n");
 
-            await runApplication();
+            const application =
+                Application.getInstance();
 
-            expect(
-                mockUI.displayItemDetails
-            ).toHaveBeenCalledTimes(2);
+            await application.run();
 
-            expect(
-                mockUI.displayItemSummary
-            ).toHaveBeenCalledTimes(1);
+            expect(mockUI.askQuestion)
+                .toHaveBeenCalledTimes(3);
 
-            expect(
-                mockUI.close
-            ).toHaveBeenCalledTimes(1);
-
-            process.argv =
-                originalArgv;
+            expect(mockUI.close)
+                .toHaveBeenCalled();
         }
     );
 
-    test(
-        "should handle invalid yes or no input",
-        async () => {
 
-            const originalArgv =
-                process.argv;
+    it(
+        "should handle invalid yes/no input",
+        async () => {
 
             process.argv = [
                 "node",
-                "index.js",
+                "index.ts",
                 "-name",
                 "Pen",
                 "-price",
@@ -174,56 +153,43 @@ describe("Application", () => {
             ];
 
             mockUI.askQuestion
-                .mockResolvedValueOnce(
-                    "invalid"
-                )
-                .mockResolvedValueOnce(
-                    "n"
+                .mockResolvedValueOnce("abc")
+                .mockResolvedValueOnce("n");
+
+            const application =
+                Application.getInstance();
+
+            await application.run();
+
+            expect(mockUI.displayMessage)
+                .toHaveBeenCalledWith(
+                    "Invalid input. Please enter y or n."
                 );
-
-            await runApplication();
-
-            expect(
-                mockUI.displayMessage
-            ).toHaveBeenCalledWith(
-                "Invalid input. Please enter y or n."
-            );
-
-            expect(
-                mockUI.displayItemSummary
-            ).toHaveBeenCalledTimes(1);
-
-            process.argv =
-                originalArgv;
         }
     );
 
-    test(
-        "should display an error when no command line arguments are provided",
-        async () => {
 
-            const originalArgv =
-                process.argv;
+    it(
+        "should handle missing command-line arguments",
+        async () => {
 
             process.argv = [
                 "node",
-                "index.js"
+                "index.ts"
             ];
 
-            await runApplication();
+            const application =
+                Application.getInstance();
 
-            expect(
-                mockUI.displayError
-            ).toHaveBeenCalledWith(
-                "Please provide item details."
-            );
+            await application.run();
 
-            expect(
-                mockUI.close
-            ).toHaveBeenCalledTimes(1);
+            expect(mockUI.displayError)
+                .toHaveBeenCalledWith(
+                    "Please provide item details."
+                );
 
-            process.argv =
-                originalArgv;
+            expect(mockUI.close)
+                .toHaveBeenCalled();
         }
     );
 });

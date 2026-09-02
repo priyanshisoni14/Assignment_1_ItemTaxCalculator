@@ -1,6 +1,6 @@
 import {
     InputConfig
-} from "../models/InputConfig";
+} from "../../models/InputConfig";
 
 export const itemInputConfig:
     InputConfig = {
