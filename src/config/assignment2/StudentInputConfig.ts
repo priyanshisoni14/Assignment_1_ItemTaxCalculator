@@ -13,6 +13,17 @@ const validCourses =
     );
 
 
+const parseCourses = (value: string): string[] =>
+    value
+        .split(",")
+        .map(
+            course =>
+                course
+                    .trim()
+                    .toUpperCase()
+        );
+
+
 export const studentInputConfig:
     InputConfig = {
 
@@ -138,14 +149,7 @@ export const studentInputConfig:
                 validate: (value) => {
 
                     const courses =
-                        value
-                            .split(",")
-                            .map(
-                                (course) =>
-                                    course
-                                        .trim()
-                                        .toUpperCase()
-                            );
+                        parseCourses(value);
 
                     return (
                         courses.length === 4
@@ -160,14 +164,7 @@ export const studentInputConfig:
                 validate: (value) => {
 
                     const courses =
-                        value
-                            .split(",")
-                            .map(
-                                (course) =>
-                                    course
-                                        .trim()
-                                        .toUpperCase()
-                            );
+                        parseCourses(value);
 
                     return courses.every(
                         (course) =>
@@ -185,14 +182,7 @@ export const studentInputConfig:
                 validate: (value) => {
 
                     const courses =
-                        value
-                            .split(",")
-                            .map(
-                                (course) =>
-                                    course
-                                        .trim()
-                                        .toUpperCase()
-                            );
+                        parseCourses(value);
 
                     return (
                         new Set(
@@ -207,13 +197,9 @@ export const studentInputConfig:
         ],
 
         transform: (value) =>
-            value
-                .split(",")
-                .map(
-                    (course) =>
-                        course
-                            .trim()
-                            .toUpperCase() as Course
-                )
+            parseCourses(value).map(
+                (course) =>
+                    course as Course
+            )
     }
 };
