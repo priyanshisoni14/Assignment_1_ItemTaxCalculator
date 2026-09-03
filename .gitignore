@@ -1,4 +1,4 @@
 node_modules/
 dist/
 .DS_Storestudents.json
-students.db.jsonl
+students.db.json
