@@ -1,5 +1,8 @@
-import { Application } from "./application/Application";
+import { MainApplication } from "./application/MainApplication";
+import { ConsoleUI } from "./ui/ConsoleUI";
 
-Application
-    .getInstance()
-    .run();
+const ui = new ConsoleUI();
+
+const application = MainApplication.getInstance(ui);
+
+application.run();
