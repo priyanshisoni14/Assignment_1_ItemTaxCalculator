@@ -23,7 +23,7 @@ export class StudentSorter {
   };
 
   public sortDefault(students: Student[]): Student[] {
-    return InsertionSorter.sort(students, this.defaultComparator);
+    return [...students].sort(this.defaultComparator);
   }
 
   public insertInDefaultOrder(
@@ -58,7 +58,7 @@ export class StudentSorter {
       return firstStudent.rollNumber - secondStudent.rollNumber;
     };
 
-    return InsertionSorter.sort(students, comparator);
+    return [...students].sort(comparator);
   }
 
   private compareStudents(

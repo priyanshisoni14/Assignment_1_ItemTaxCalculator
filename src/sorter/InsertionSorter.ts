@@ -1,27 +1,26 @@
 export type Comparator<T> = (first: T, second: T) => number;
 
 export class InsertionSorter {
-  public static sort<T>(items: T[], comparator: Comparator<T>): T[] {
-    const result = [...items];
+ 
+  private static findInsertionIndex<T>(
+    sortedItems: T[],
+    item: T,
+    comparator: Comparator<T>,
+  ): number {
+    let low = 0;
+    let high = sortedItems.length;
 
-    for (let currentIndex = 1; currentIndex < result.length; currentIndex++) {
-      const currentItem = result[currentIndex];
+    while (low < high) {
+      const mid = (low + high) >>> 1;
 
-      let compareIndex = currentIndex - 1;
-
-      while (
-        compareIndex >= 0 &&
-        comparator(result[compareIndex], currentItem) > 0
-      ) {
-        result[compareIndex + 1] = result[compareIndex];
-
-        compareIndex--;
+      if (comparator(sortedItems[mid], item) <= 0) {
+        low = mid + 1;
+      } else {
+        high = mid;
       }
-
-      result[compareIndex + 1] = currentItem;
     }
 
-    return result;
+    return low;
   }
 
   public static insertSorted<T>(
@@ -29,19 +28,15 @@ export class InsertionSorter {
     item: T,
     comparator: Comparator<T>,
   ): T[] {
+    const insertIndex = InsertionSorter.findInsertionIndex(
+      sortedItems,
+      item,
+      comparator,
+    );
+
     const result = [...sortedItems];
 
-    let insertIndex = result.length;
-
-    result.push(item);
-
-    while (insertIndex > 0 && comparator(result[insertIndex - 1], item) > 0) {
-      result[insertIndex] = result[insertIndex - 1];
-
-      insertIndex--;
-    }
-
-    result[insertIndex] = item;
+    result.splice(insertIndex, 0, item);
 
     return result;
   }
