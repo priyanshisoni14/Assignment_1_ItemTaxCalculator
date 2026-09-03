@@ -31,13 +31,6 @@ export class StudentLogStore {
     });
   }
 
-  /**
-   * Appends multiple records in a single write call. Still only ever
-   * adds bytes to the end of the file — existing content is never
-   * touched — this is the batched form of insert()/delete(), used by
-   * StudentRepository.save() to flush a buffer of pending in-memory
-   * changes to disk at once.
-   */
   public async appendAll(records: LogRecord[]): Promise<void> {
     if (records.length === 0) {
       return;
