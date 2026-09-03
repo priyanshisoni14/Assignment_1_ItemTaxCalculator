@@ -1,5 +1,5 @@
 import {Student} from "../models/assignment2/Student";
-import {LogRecord, StudentLogStore} from "../persistence/assignment2/StudentLogStore";
+import {LogRecord, StudentStore} from "../persistence/assignment2/StudentStore";
 import {StudentSorter} from "../sorter/StudentSorter";
 
 export class StudentRepository {
@@ -9,7 +9,7 @@ export class StudentRepository {
     private pendingOperations: LogRecord[] = [];
 
     constructor(
-        private readonly logStore: StudentLogStore,
+        private readonly logStore: StudentStore,
         private readonly studentSorter: StudentSorter = new StudentSorter()
     ) {}
 

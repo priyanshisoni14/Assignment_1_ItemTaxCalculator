@@ -8,7 +8,7 @@ import { ExitCommand } from "../../command/assignment2/ExitCommand";
 import { SaveStudentCommand } from "../../command/assignment2/SaveStudentCommand";
 import { StudentFactory } from "./StudentFactory";
 import { InputParser } from "../../parser/InputParser";
-import { StudentLogStore } from "../../persistence/assignment2/StudentLogStore";
+import { StudentMongoJsonStore } from "../../persistence/assignment2/StudentMongoJsonStore";
 import { StudentDeletion } from "../../student/StudentDeletion";
 import { StudentDisplay } from "../../student/StudentDisplay";
 import { StudentInputCollector } from "../../student/StudentInputCollector";
@@ -23,10 +23,10 @@ export class StudentApplicationFactory {
     commandRegistry: CommandRegistry;
     loadStudents: () => Promise<void>;
   } {
-    const studentLogStore = new StudentLogStore("students.db.jsonl");
+    const studentStore = new StudentMongoJsonStore("students.db.json");
 
     const studentRepository = new StudentRepository(
-      studentLogStore,
+      studentStore,
       new StudentSorter(),
     );
 
