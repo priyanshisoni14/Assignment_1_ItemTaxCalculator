@@ -1,5 +1,5 @@
 import { Item }
-    from "../models/assignment1/Item";
+    from "../../models/assignment1/Item";
 
 import { ItemSummaryTotals }
     from "./ItemSummaryCalculator";

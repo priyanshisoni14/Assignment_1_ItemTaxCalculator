@@ -1,7 +1,7 @@
 import { Item } from "../models/assignment1/Item";
 import { ItemFactory } from "../factory/assignment1/ItemFactory";
 import { InputParser } from "../parser/InputParser";
-import { ItemInputMapper } from "../utils/ItemInputMapper";
+import { ItemInputMapper } from "../utils/assignment1/ItemInputMapper";
 
 export class ItemProcessor {
 

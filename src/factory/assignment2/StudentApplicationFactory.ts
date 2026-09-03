@@ -16,6 +16,7 @@ import {StudentRegistration} from "../../student/StudentRegistration";
 import {StudentSerializer} from "../../student/StudentSerializer";
 import {StudentSorter} from "../../sorter/StudentSorter";
 import {ConsoleUI} from "../../ui/ConsoleUI";
+import {StudentInputMapper} from "../../utils/assignment2/StudentInputMapper";
 
 export class StudentApplicationFactory {
 
@@ -29,12 +30,16 @@ export class StudentApplicationFactory {
         const studentSerializer =
             new StudentSerializer("students.json");
 
+        const studentInputMapper =
+            new StudentInputMapper();
+
         const studentRegistration =
             new StudentRegistration(
                 new StudentInputCollector(ui),
                 new InputParser(studentInputConfig),
                 new StudentFactory(),
-                studentManager
+                studentManager,
+                studentInputMapper
             );
 
         const studentDisplay =
