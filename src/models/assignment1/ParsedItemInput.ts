@@ -1,12 +1,11 @@
 import { ItemType } from "./ItemType";
 
 export interface ParsedItemInput {
+  name: string;
 
-    name: string;
+  price?: number;
 
-    price?: number;
+  quantity?: number;
 
-    quantity?: number;
-
-    type: ItemType;
+  type: ItemType;
 }

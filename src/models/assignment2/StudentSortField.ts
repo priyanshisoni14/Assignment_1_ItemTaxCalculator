@@ -1,5 +1,1 @@
-export type StudentSortField =
-    | "fullName"
-    | "rollNumber"
-    | "age"
-    | "address";
+export type StudentSortField = "fullName" | "rollNumber" | "age" | "address";

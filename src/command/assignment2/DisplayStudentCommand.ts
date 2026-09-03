@@ -1,16 +1,12 @@
-import {StudentDisplay} from "../../student/StudentDisplay";
-import {Command} from "./Command";
+import { StudentDisplay } from "../../student/StudentDisplay";
+import { Command } from "./Command";
 
 export class DisplayStudentCommand implements Command {
+  constructor(private readonly studentDisplay: StudentDisplay) {}
 
-    constructor(
-        private readonly studentDisplay: StudentDisplay
-    ) {}
+  public async execute(): Promise<boolean> {
+    await this.studentDisplay.displayStudents();
 
-    public async execute(): Promise<boolean> {
-
-        await this.studentDisplay.displayStudents();
-
-        return true;
-    }
+    return true;
+  }
 }

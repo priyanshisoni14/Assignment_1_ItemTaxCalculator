@@ -1,22 +1,15 @@
 export interface ValidationRule {
+  validate(value: string): boolean;
 
-    validate(
-        value: string
-    ): boolean;
-
-    errorMessage: string;
+  errorMessage: string;
 }
 
 export interface InputOptionConfig {
+  required: boolean;
 
-    required: boolean;
+  validations?: ValidationRule[];
 
-    validations?: ValidationRule[];
-
-    transform?: (
-        value: string
-    ) => unknown;
+  transform?: (value: string) => unknown;
 }
 
-export type InputConfig =
-    Record<string, InputOptionConfig>;
+export type InputConfig = Record<string, InputOptionConfig>;

@@ -1,13 +1,11 @@
-import {StudentManager} from "../../student/StudentManager";
-import {StudentSerializer} from "../../student/StudentSerializer";
+import {StudentRepository} from "../../student/StudentRepository";
 import {ConsoleUI} from "../../ui/ConsoleUI";
 import {Command} from "./Command";
 
 export class SaveStudentCommand implements Command {
 
     constructor(
-        private readonly studentManager: StudentManager,
-        private readonly studentSerializer: StudentSerializer,
+        private readonly studentRepository: StudentRepository,
         private readonly ui: ConsoleUI
     ) {}
 
@@ -15,9 +13,7 @@ export class SaveStudentCommand implements Command {
 
         try {
 
-            await this.studentSerializer.save(
-                this.studentManager.getStudents()
-            );
+            await this.studentRepository.save();
 
             this.ui.displayMessage(
                 "User details saved successfully."

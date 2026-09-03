@@ -1,15 +1,9 @@
-import {Command} from "./Command";
+import { Command } from "./Command";
 
 export class CommandRegistry {
+  constructor(private readonly commands: Map<string, Command>) {}
 
-    constructor(
-        private readonly commands: Map<string, Command>
-    ) {}
-
-    public getCommand(
-        option: string
-    ): Command | undefined {
-
-        return this.commands.get(option);
-    }
+  public getCommand(option: string): Command | undefined {
+    return this.commands.get(option);
+  }
 }

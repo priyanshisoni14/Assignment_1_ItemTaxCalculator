@@ -1,102 +1,60 @@
-import {studentInputConfig} from "../config/assignment2/StudentInputConfig";
-import {InputConfig} from "../models/InputConfig";
-import {InputParser} from "../parser/InputParser";
-import {ConsoleUI} from "../ui/ConsoleUI";
+import { studentInputConfig } from "../config/assignment2/StudentInputConfig";
+import { InputConfig } from "../models/InputConfig";
+import { InputParser } from "../parser/InputParser";
+import { ConsoleUI } from "../ui/ConsoleUI";
 
 export class StudentInputCollector {
+  constructor(private readonly ui: ConsoleUI) {}
 
-    constructor(
-        private readonly ui: ConsoleUI
-    ) {}
+  public async collect(): Promise<Record<string, string>> {
+    const fullName = await this.collectField("fullName", "Enter full name: ");
 
-    public async collect():
-        Promise<Record<string, string>> {
+    const age = await this.collectField("age", "Enter age: ");
 
-        const fullName =
-            await this.collectField(
-                "fullName",
-                "Enter full name: "
-            );
+    const address = await this.collectField("address", "Enter address: ");
 
-        const age =
-            await this.collectField(
-                "age",
-                "Enter age: "
-            );
+    const rollNumber = await this.collectField(
+      "rollNumber",
+      "Enter roll number: ",
+    );
 
-        const address =
-            await this.collectField(
-                "address",
-                "Enter address: "
-            );
+    const courses = await this.collectField(
+      "courses",
+      "Select exactly 4 courses from A, B, C, D, E, F (comma-separated): ",
+    );
 
-        const rollNumber =
-            await this.collectField(
-                "rollNumber",
-                "Enter roll number: "
-            );
+    return {
+      fullName,
+      age,
+      address,
+      rollNumber,
+      courses,
+    };
+  }
 
-        const courses =
-            await this.collectField(
-                "courses",
-                "Select exactly 4 courses from A, B, C, D, E, F (comma-separated): "
-            );
+  private async collectField(field: string, question: string): Promise<string> {
+    const fieldConfig: InputConfig = {
+      [field]: studentInputConfig[field],
+    };
 
-        return {
-            fullName,
-            age,
-            address,
-            rollNumber,
-            courses
-        };
-    }
+    const parser = new InputParser(fieldConfig);
 
-    private async collectField(
-        field: string,
-        question: string
-    ): Promise<string> {
+    while (true) {
+      const value = await this.ui.askQuestion(question);
 
-        const fieldConfig:
-            InputConfig = {
-                [field]:
-                    studentInputConfig[field]
-            };
+      try {
+        parser.parseRecord({
+          [field]: value,
+        });
 
-        const parser =
-            new InputParser(
-                fieldConfig
-            );
-
-        while (true) {
-
-            const value =
-                await this.ui.askQuestion(
-                    question
-                );
-
-            try {
-
-                parser.parseRecord({
-                    [field]: value
-                });
-
-                return value;
-
-            } catch (error) {
-
-                if (error instanceof Error) {
-
-                    this.ui.displayError(
-                        error.message
-                    );
-
-                } else {
-
-                    this.ui.displayError(
-                        "Invalid input."
-                    );
-                }
-            }
+        return value;
+      } catch (error) {
+        if (error instanceof Error) {
+          this.ui.displayError(error.message);
+        } else {
+          this.ui.displayError("Invalid input.");
         }
+      }
     }
+  }
 }

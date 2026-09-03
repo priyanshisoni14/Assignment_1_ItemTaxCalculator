@@ -1,205 +1,118 @@
-import {
-    InputConfig
-} from "../../models/InputConfig";
+import { InputConfig } from "../../models/InputConfig";
 
-import {
-    Course
-} from "../../models/assignment2/Course";
+import { Course } from "../../models/assignment2/Course";
 
-
-const validCourses =
-    Object.values(
-        Course
-    );
-
+const validCourses = Object.values(Course);
 
 const parseCourses = (value: string): string[] =>
-    value
-        .split(",")
-        .map(
-            course =>
-                course
-                    .trim()
-                    .toUpperCase()
-        );
+  value.split(",").map((course) => course.trim().toUpperCase());
 
+export const studentInputConfig: InputConfig = {
+  fullName: {
+    required: true,
 
-export const studentInputConfig:
-    InputConfig = {
+    validations: [
+      {
+        validate: (value) => value.trim().length > 0,
 
-    fullName: {
-        required: true,
+        errorMessage: "Full name cannot be empty.",
+      },
+    ],
 
-        validations: [
-            {
-                validate: (value) =>
-                    value
-                        .trim()
-                        .length > 0,
+    transform: (value) => value.trim().replace(/\s+/g, " "),
+  },
 
-                errorMessage:
-                    "Full name cannot be empty."
-            }
-        ],
+  age: {
+    required: true,
 
-        transform: (value) =>
-            value
-                .trim()
-                .replace(
-                    /\s+/g,
-                    " "
-                )
-    },
+    validations: [
+      {
+        validate: (value) => /^\d+$/.test(value.trim()),
 
+        errorMessage: "Age must be a positive integer.",
+      },
 
-    age: {
-        required: true,
+      {
+        validate: (value) => Number(value.trim()) > 0,
 
-        validations: [
-            {
-                validate: (value) =>
-                    /^\d+$/.test(
-                        value.trim()
-                    ),
+        errorMessage: "Age must be greater than zero.",
+      },
+    ],
 
-                errorMessage:
-                    "Age must be a positive integer."
-            },
+    transform: (value) => Number(value.trim()),
+  },
 
-            {
-                validate: (value) =>
-                    Number(
-                        value.trim()
-                    ) > 0,
+  address: {
+    required: true,
 
-                errorMessage:
-                    "Age must be greater than zero."
-            }
-        ],
+    validations: [
+      {
+        validate: (value) => value.trim().length > 0,
 
-        transform: (value) =>
-            Number(
-                value.trim()
-            )
-    },
+        errorMessage: "Address cannot be empty.",
+      },
+    ],
 
+    transform: (value) => value.trim().replace(/\s+/g, " "),
+  },
 
-    address: {
-        required: true,
+  rollNumber: {
+    required: true,
 
-        validations: [
-            {
-                validate: (value) =>
-                    value
-                        .trim()
-                        .length > 0,
+    validations: [
+      {
+        validate: (value) => /^\d+$/.test(value.trim()),
 
-                errorMessage:
-                    "Address cannot be empty."
-            }
-        ],
+        errorMessage: "Roll number must be a positive integer.",
+      },
 
-        transform: (value) =>
-            value
-                .trim()
-                .replace(
-                    /\s+/g,
-                    " "
-                )
-    },
+      {
+        validate: (value) => Number(value.trim()) > 0,
 
+        errorMessage: "Roll number must be greater than zero.",
+      },
+    ],
 
-    rollNumber: {
-        required: true,
+    transform: (value) => Number(value.trim()),
+  },
 
-        validations: [
-            {
-                validate: (value) =>
-                    /^\d+$/.test(
-                        value.trim()
-                    ),
+  courses: {
+    required: true,
 
-                errorMessage:
-                    "Roll number must be a positive integer."
-            },
+    validations: [
+      {
+        validate: (value) => {
+          const courses = parseCourses(value);
 
-            {
-                validate: (value) =>
-                    Number(
-                        value.trim()
-                    ) > 0,
+          return courses.length === 4;
+        },
 
-                errorMessage:
-                    "Roll number must be greater than zero."
-            }
-        ],
+        errorMessage: "Exactly four courses must be selected.",
+      },
 
-        transform: (value) =>
-            Number(
-                value.trim()
-            )
-    },
+      {
+        validate: (value) => {
+          const courses = parseCourses(value);
 
+          return courses.every((course) =>
+            validCourses.includes(course as Course),
+          );
+        },
 
-    courses: {
-        required: true,
+        errorMessage: "Courses must be selected from A, B, C, D, E, and F.",
+      },
 
-        validations: [
-            {
-                validate: (value) => {
+      {
+        validate: (value) => {
+          const courses = parseCourses(value);
 
-                    const courses =
-                        parseCourses(value);
+          return new Set(courses).size === courses.length;
+        },
 
-                    return (
-                        courses.length === 4
-                    );
-                },
+        errorMessage: "Duplicate courses are not allowed.",
+      },
+    ],
 
-                errorMessage:
-                    "Exactly four courses must be selected."
-            },
-
-            {
-                validate: (value) => {
-
-                    const courses =
-                        parseCourses(value);
-
-                    return courses.every(
-                        (course) =>
-                            validCourses.includes(
-                                course as Course
-                            )
-                    );
-                },
-
-                errorMessage:
-                    "Courses must be selected from A, B, C, D, E, and F."
-            },
-
-            {
-                validate: (value) => {
-
-                    const courses =
-                        parseCourses(value);
-
-                    return (
-                        new Set(
-                            courses
-                        ).size === courses.length
-                    );
-                },
-
-                errorMessage:
-                    "Duplicate courses are not allowed."
-            }
-        ],
-
-        transform: (value) =>
-            parseCourses(value).map(
-                (course) =>
-                    course as Course
-            )
-    }
+    transform: (value) => parseCourses(value).map((course) => course as Course),
+  },
 };

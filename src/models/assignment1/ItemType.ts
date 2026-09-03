@@ -1,4 +1,1 @@
-export type ItemType =
-    | "raw"
-    | "manufactured"
-    | "imported";
+export type ItemType = "raw" | "manufactured" | "imported";

@@ -60,11 +60,11 @@ Options other than `-name` can be provided in any order.
 surcharge
 ```
 
-| Cost after import duty | Surcharge |
-|---|---:|
-| ≤ ₹100 | ₹5 |
-| > ₹100 and ≤ ₹200 | ₹10 |
-| > ₹200 | 5%  of the applicable final cost|
+| Cost after import duty |                       Surcharge |
+| ---------------------- | ------------------------------: |
+| ≤ ₹100                 |                              ₹5 |
+| > ₹100 and ≤ ₹200      |                             ₹10 |
+| > ₹200                 | 5% of the applicable final cost |
 
 ## Tax Calculation
 
@@ -108,4 +108,5 @@ npm test
 Manual testing was also performed for valid inputs, missing required options, invalid types, invalid price/quantity, different option orders, multiple items, and invalid `y/n` responses.
 
 ## Dev Analysis Doc and Testing Analysis
+
 https://docs.google.com/document/d/1CJHKnIM3iIyKD_-C1Z8FGAdzs4e4ToTP6lXCrCovWLU/edit?usp=sharing
