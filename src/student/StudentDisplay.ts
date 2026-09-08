@@ -9,19 +9,18 @@ export class StudentDisplay {
   constructor(
     private readonly studentRepository: StudentRepository,
     private readonly studentSorter: StudentSorter,
-    private readonly ui: ConsoleUI,
   ) {}
 
   public async displayStudents(): Promise<void> {
-    const students =  this.studentRepository.getStudents();
+    const students = this.studentRepository.getStudents();
 
     if (students.length === 0) {
-      this.ui.displayMessage("No student details available.");
+      ConsoleUI.displayMessage("No student details available.");
 
       return;
     }
 
-    const shouldSort = await this.ui.askQuestion(
+    const shouldSort = await ConsoleUI.askQuestion(
       "\nDo you want to sort the results? (y/n): ",
     );
 
@@ -43,7 +42,7 @@ export class StudentDisplay {
   private async getSortField(): Promise<StudentSortField> {
     while (true) {
       const field = (
-        await this.ui.askQuestion(
+        await ConsoleUI.askQuestion(
           [
             "\nSort by:",
             "1. Name",
@@ -69,7 +68,7 @@ export class StudentDisplay {
           return "address";
 
         default:
-          this.ui.displayMessage(
+          ConsoleUI.displayMessage(
             "Invalid option. Please select 1, 2, 3, or 4.",
           );
       }
@@ -79,7 +78,7 @@ export class StudentDisplay {
   private async getSortOrder(): Promise<SortOrder> {
     while (true) {
       const order = (
-        await this.ui.askQuestion(
+        await ConsoleUI.askQuestion(
           "\nSort order (1. Ascending, 2. Descending): ",
         )
       ).trim();
@@ -92,24 +91,19 @@ export class StudentDisplay {
           return "descending";
 
         default:
-          this.ui.displayMessage("Invalid option. Please select 1 or 2.");
+          ConsoleUI.displayMessage("Invalid option. Please select 1 or 2.");
       }
     }
   }
 
   private displayStudentTable(students: Student[]): void {
-    this.ui.displayTable(
+    ConsoleUI.displayTable(
       students.map((student) => ({
         ID: student.id,
-
         Name: student.fullName,
-
         "Roll Number": student.rollNumber,
-
         Age: student.age,
-
         Address: student.address,
-
         Courses: student.courses.join(", "),
       })),
     );

@@ -1,36 +1,41 @@
 import { ConsoleUI } from "../ui/ConsoleUI";
 import { StudentRepository } from "./StudentRepository";
+import { SingleFieldValidator } from "../utils/assignment2/SingleFieldValidator";
 
 export class StudentDeletion {
   constructor(
     private readonly studentRepository: StudentRepository,
-
-    private readonly ui: ConsoleUI,
+    private readonly singleFieldValidator: SingleFieldValidator,
   ) {}
 
   public async deleteStudent(): Promise<void> {
-    const rollNumberInput = await this.ui.askQuestion(
+    const rollNumberInput = await ConsoleUI.askQuestion(
       "\nEnter roll number to delete: ",
     );
 
-    const rollNumber = Number(rollNumberInput.trim());
+    const errorMessage = this.singleFieldValidator.validate(
+      "rollNumber",
+      rollNumberInput,
+    );
 
-    if (!Number.isInteger(rollNumber) || rollNumber <= 0) {
-      this.ui.displayError("Roll number must be a positive integer.");
+    if (errorMessage !== undefined) {
+      ConsoleUI.displayError(errorMessage);
 
       return;
     }
 
+    const rollNumber = Number(rollNumberInput.trim());
+
     const deleted = this.studentRepository.deleteByRollNumber(rollNumber);
 
     if (deleted) {
-      this.ui.displayMessage(
+      ConsoleUI.displayMessage(
         `Student with roll number ${rollNumber} deleted successfully.`,
       );
 
       return;
     }
 
-    this.ui.displayMessage(`No student found with roll number ${rollNumber}.`);
+    ConsoleUI.displayMessage(`No student found with roll number ${rollNumber}.`);
   }
 }

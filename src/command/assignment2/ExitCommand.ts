@@ -1,47 +1,51 @@
-import {StudentRepository} from "../../student/StudentRepository";
-import {ConsoleUI} from "../../ui/ConsoleUI";
-import {Command} from "./Command";
+import { StudentRepository } from "../../student/StudentRepository";
+import { ConsoleUI } from "../../ui/ConsoleUI";
+import { Command } from "./Command";
 
 export class ExitCommand implements Command {
+  constructor(private readonly studentRepository: StudentRepository) {}
 
-    constructor(
-        private readonly studentRepository: StudentRepository,
-        private readonly ui: ConsoleUI
-    ) {}
+  public async execute(): Promise<boolean> {
+    const saveChanges = await this.askShouldSave();
 
-    public async execute(): Promise<boolean> {
+    if (!saveChanges) {
+      ConsoleUI.displayMessage("Exiting without saving.");
 
-        const saveChanges =
-            await this.ui.askQuestion(
-                "\nDo you want to save latest changes? (y/n): "
-            );
-
-        if (
-            saveChanges.trim().toLowerCase() !== "y"
-        ) {
-            return false;
-        }
-
-        try {
-
-            await this.studentRepository.save();
-
-            this.ui.displayMessage(
-                "User details saved successfully."
-            );
-
-            return false;
-
-        } catch (error) {
-
-            const message =
-                error instanceof Error
-                    ? error.message
-                    : "Unable to save user details.";
-
-            this.ui.displayError(message);
-
-            return true;
-        }
+      return false;
     }
+
+    try {
+      await this.studentRepository.save();
+
+      ConsoleUI.displayMessage("User details saved successfully.");
+
+      return false;
+    } catch (error) {
+      ConsoleUI.displayCaughtError(error, "Unable to save user details.");
+
+      return true;
+    }
+  }
+
+  private async askShouldSave(): Promise<boolean> {
+    while (true) {
+      const answer = (
+        await ConsoleUI.askQuestion(
+          "\nDo you want to save latest changes? (y/n): ",
+        )
+      )
+        .trim()
+        .toLowerCase();
+
+      if (answer === "y" || answer === "yes") {
+        return true;
+      }
+
+      if (answer === "n" || answer === "no") {
+        return false;
+      }
+
+      ConsoleUI.displayMessage("Please enter y or n.");
+    }
+  }
 }

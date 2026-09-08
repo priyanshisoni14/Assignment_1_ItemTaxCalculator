@@ -13,8 +13,9 @@ export class Application {
   private readonly processor: ItemProcessor;
   private readonly summaryCalculator: ItemSummaryCalculator;
   private readonly itemDisplayMapper: ItemDisplayMapper;
+  private hasConsumedCliArgs = false;
 
-  private constructor(private readonly ui: ConsoleUI) {
+  private constructor() {
     this.processor = new ItemProcessor(
       new InputParser(itemInputConfig),
       new ItemInputMapper(),
@@ -25,9 +26,9 @@ export class Application {
     this.itemDisplayMapper = new ItemDisplayMapper();
   }
 
-  public static getInstance(ui: ConsoleUI): Application {
+  public static getInstance(): Application {
     if (Application.instance === undefined) {
-      Application.instance = new Application(ui);
+      Application.instance = new Application();
     }
 
     return Application.instance;
@@ -57,29 +58,33 @@ export class Application {
         continue;
       }
 
-      this.ui.displayMessage("Invalid input. Please enter y or n.");
+      ConsoleUI.displayMessage("Invalid input. Please enter y or n.");
     }
 
     this.displayItemSummary(items);
 
-    this.ui.displayMessage("\nItem Tax Calculator completed.");
+    ConsoleUI.displayMessage("\nItem Tax Calculator completed.");
   }
 
   private async processFirstItem(): Promise<Item[] | null> {
-    const commandLineArguments = process.argv.slice(2);
-
     const items: Item[] = [];
 
-    if (commandLineArguments.length > 0) {
-      this.handleItem(commandLineArguments, items);
+    if (!this.hasConsumedCliArgs) {
+      this.hasConsumedCliArgs = true;
 
-      return items;
+      const commandLineArguments = process.argv.slice(2);
+
+      if (commandLineArguments.length > 0) {
+        this.handleItem(commandLineArguments, items);
+
+        return items;
+      }
     }
 
-    const itemDetails = await this.ui.askQuestion("\nEnter item details: ");
+    const itemDetails = await ConsoleUI.askQuestion("\nEnter item details: ");
 
     if (itemDetails.trim().length === 0) {
-      this.ui.displayError("Please provide item details.");
+      ConsoleUI.displayError("Please provide item details.");
 
       return null;
     }
@@ -91,7 +96,7 @@ export class Application {
 
   private async askToAddAnotherItem(): Promise<string> {
     return (
-      await this.ui.askQuestion(
+      await ConsoleUI.askQuestion(
         "\nDo you want to enter details of any other item (y/n): ",
       )
     )
@@ -100,7 +105,7 @@ export class Application {
   }
 
   private async collectAdditionalItem(items: Item[]): Promise<void> {
-    const itemDetails = await this.ui.askQuestion("Enter item details: ");
+    const itemDetails = await ConsoleUI.askQuestion("Enter item details: ");
 
     const itemArguments = itemDetails.trim().split(/\s+/);
 
@@ -113,27 +118,21 @@ export class Application {
 
       items.push(item);
 
-      this.ui.displayTable([this.itemDisplayMapper.mapItem(item)]);
+      ConsoleUI.displayTable([this.itemDisplayMapper.mapItem(item)]);
     } catch (error) {
       this.displayProcessingError(error);
     }
   }
 
   private displayProcessingError(error: unknown): void {
-    if (error instanceof Error) {
-      this.ui.displayError(error.message);
-
-      return;
-    }
-
-    this.ui.displayError("An unexpected error occurred.");
+    ConsoleUI.displayCaughtError(error, "An unexpected error occurred.");
   }
 
   private displayItemSummary(items: Item[]): void {
     const totals = this.summaryCalculator.calculateTotals(items);
 
-    this.ui.displayTable(this.itemDisplayMapper.mapItems(items));
+    ConsoleUI.displayTable(this.itemDisplayMapper.mapItems(items));
 
-    this.ui.displayTable([this.itemDisplayMapper.mapSummary(totals)]);
+    ConsoleUI.displayTable([this.itemDisplayMapper.mapSummary(totals)]);
   }
 }

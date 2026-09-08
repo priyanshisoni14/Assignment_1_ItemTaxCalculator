@@ -23,24 +23,16 @@ export const studentInputConfig: InputConfig = {
   },
 
   age: {
-    required: true,
+  required: true,
 
-    validations: [
-      {
-        validate: (value) => /^\d+$/.test(value.trim()),
+  validations: [
+    { validate: (value) => /^\d+$/.test(value.trim()), errorMessage: "Age must be a positive integer." },
+    { validate: (value) => Number(value.trim()) > 0, errorMessage: "Age must be greater than zero." },
+    { validate: (value) => Number(value.trim()) <= 120, errorMessage: "Age must be 120 or less." },
+  ],
 
-        errorMessage: "Age must be a positive integer.",
-      },
-
-      {
-        validate: (value) => Number(value.trim()) > 0,
-
-        errorMessage: "Age must be greater than zero.",
-      },
-    ],
-
-    transform: (value) => Number(value.trim()),
-  },
+  transform: (value) => Number(value.trim()),
+},
 
   address: {
     required: true,
@@ -57,24 +49,16 @@ export const studentInputConfig: InputConfig = {
   },
 
   rollNumber: {
-    required: true,
+  required: true,
 
-    validations: [
-      {
-        validate: (value) => /^\d+$/.test(value.trim()),
+  validations: [
+    { validate: (value) => /^\d+$/.test(value.trim()), errorMessage: "Roll number must be a positive integer." },
+    { validate: (value) => Number(value.trim()) > 0, errorMessage: "Roll number must be greater than zero." },
+    { validate: (value) => value.trim().length <= 9, errorMessage: "Roll number cannot exceed 9 digits." },
+  ],
 
-        errorMessage: "Roll number must be a positive integer.",
-      },
-
-      {
-        validate: (value) => Number(value.trim()) > 0,
-
-        errorMessage: "Roll number must be greater than zero.",
-      },
-    ],
-
-    transform: (value) => Number(value.trim()),
-  },
+  transform: (value) => Number(value.trim()),
+},
 
   courses: {
     required: true,

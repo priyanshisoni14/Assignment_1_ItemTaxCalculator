@@ -1,5 +1,5 @@
 import { CommandRegistry } from "../../command/assignment2/CommandRegistry";
-import { StudentApplicationFactory } from "../../factory/assignment2/StudentApplicationFactory";
+import { StudentApplicationConfig } from "../../config/assignment2/StudentApplicationConfig";
 import { ConsoleUI } from "../../ui/ConsoleUI";
 
 export class StudentApplication {
@@ -7,17 +7,15 @@ export class StudentApplication {
   private initialized = false;
 
   private constructor(
-    private readonly ui: ConsoleUI,
     private readonly commandRegistry: CommandRegistry,
     private readonly loadStudents: () => Promise<void>,
   ) {}
 
-  public static getInstance(ui: ConsoleUI): StudentApplication {
+  public static getInstance(): StudentApplication {
     if (StudentApplication.instance === undefined) {
-      const dependencies = StudentApplicationFactory.create(ui);
+      const dependencies = StudentApplicationConfig.create();
 
       StudentApplication.instance = new StudentApplication(
-        ui,
         dependencies.commandRegistry,
         dependencies.loadStudents,
       );
@@ -42,9 +40,10 @@ export class StudentApplication {
       const command = this.commandRegistry.getCommand(selectedOption);
 
       if (command === undefined) {
-        this.ui.displayMessage(
+        ConsoleUI.displayMessage(
           "Invalid option. Please select an option from 1 to 5.",
         );
+
         continue;
       }
 
@@ -53,7 +52,7 @@ export class StudentApplication {
   }
 
   private displayMenu(): void {
-    this.ui.displayMessage(
+    ConsoleUI.displayMessage(
       [
         "\nStudent Management System",
         "1. Add User details",
@@ -66,6 +65,6 @@ export class StudentApplication {
   }
 
   private async getMenuOption(): Promise<string> {
-    return (await this.ui.askQuestion("\nSelect an option: ")).trim();
+    return (await ConsoleUI.askQuestion("\nSelect an option: ")).trim();
   }
 }

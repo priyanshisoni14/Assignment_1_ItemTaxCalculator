@@ -1,4 +1,4 @@
-import { studentInputConfig } from "../../config/assignment2/StudentInputConfig";
+import { studentInputConfig } from "./StudentInputConfig";
 import { AddStudentCommand } from "../../command/assignment2/AddStudentCommand";
 import { Command } from "../../command/assignment2/Command";
 import { CommandRegistry } from "../../command/assignment2/CommandRegistry";
@@ -6,7 +6,7 @@ import { DeleteStudentCommand } from "../../command/assignment2/DeleteStudentCom
 import { DisplayStudentCommand } from "../../command/assignment2/DisplayStudentCommand";
 import { ExitCommand } from "../../command/assignment2/ExitCommand";
 import { SaveStudentCommand } from "../../command/assignment2/SaveStudentCommand";
-import { StudentFactory } from "./StudentFactory";
+import { StudentFactory } from "../../factory/assignment2/StudentFactory";
 import { InputParser } from "../../parser/InputParser";
 import { StudentJsonStore } from "../../persistence/assignment2/StudentJsonStore";
 import { StudentDeletion } from "../../student/StudentDeletion";
@@ -17,9 +17,10 @@ import { StudentRepository } from "../../student/StudentRepository";
 import { StudentSorter } from "../../sorter/StudentSorter";
 import { ConsoleUI } from "../../ui/ConsoleUI";
 import { StudentInputMapper } from "../../utils/assignment2/StudentInputMapper";
+import { SingleFieldValidator } from "../../utils/assignment2/SingleFieldValidator";
 
-export class StudentApplicationFactory {
-  public static create(ui: ConsoleUI): {
+export class StudentApplicationConfig {
+  public static create(): {
     commandRegistry: CommandRegistry;
     loadStudents: () => Promise<void>;
   } {
@@ -32,8 +33,10 @@ export class StudentApplicationFactory {
 
     const studentInputMapper = new StudentInputMapper();
 
+    const singleFieldValidator = new SingleFieldValidator(studentInputConfig);
+
     const studentRegistration = new StudentRegistration(
-      new StudentInputCollector(ui),
+      new StudentInputCollector(singleFieldValidator),
       new InputParser(studentInputConfig),
       new StudentFactory(),
       studentRepository,
@@ -43,18 +46,20 @@ export class StudentApplicationFactory {
     const studentDisplay = new StudentDisplay(
       studentRepository,
       new StudentSorter(),
-      ui,
     );
 
-    const studentDeletion = new StudentDeletion(studentRepository, ui);
+    const studentDeletion = new StudentDeletion(
+      studentRepository,
+      singleFieldValidator,
+    );
 
     const commandRegistry = new CommandRegistry(
       new Map<string, Command>([
-        ["1", new AddStudentCommand(studentRegistration, ui)],
+        ["1", new AddStudentCommand(studentRegistration)],
         ["2", new DisplayStudentCommand(studentDisplay)],
         ["3", new DeleteStudentCommand(studentDeletion)],
-        ["4", new SaveStudentCommand(studentRepository, ui)],
-        ["5", new ExitCommand(studentRepository, ui)],
+        ["4", new SaveStudentCommand(studentRepository)],
+        ["5", new ExitCommand(studentRepository)],
       ]),
     );
 
@@ -62,12 +67,7 @@ export class StudentApplicationFactory {
       try {
         await studentRepository.load();
       } catch (error) {
-        const message =
-          error instanceof Error
-            ? error.message
-            : "Unable to load user details.";
-
-        ui.displayError(message);
+        ConsoleUI.displayCaughtError(error, "Unable to load user details.");
       }
     };
 

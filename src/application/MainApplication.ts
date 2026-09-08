@@ -6,17 +6,15 @@ export class MainApplication {
   private static instance: MainApplication;
 
   private constructor(
-    private readonly ui: ConsoleUI,
     private readonly itemApplication: Application,
     private readonly studentApplication: StudentApplication,
   ) {}
 
-  public static getInstance(ui: ConsoleUI): MainApplication {
+  public static getInstance(): MainApplication {
     if (MainApplication.instance === undefined) {
       MainApplication.instance = new MainApplication(
-        ui,
-        Application.getInstance(ui),
-        StudentApplication.getInstance(ui),
+        Application.getInstance(),
+        StudentApplication.getInstance(),
       );
     }
 
@@ -29,7 +27,7 @@ export class MainApplication {
     while (isRunning) {
       this.displayMenu();
 
-      const option = (await this.ui.askQuestion("\nSelect an option: ")).trim();
+      const option = (await ConsoleUI.askQuestion("\nSelect an option: ")).trim();
 
       switch (option) {
         case "1":
@@ -45,17 +43,17 @@ export class MainApplication {
           break;
 
         default:
-          this.ui.displayMessage("Invalid option. Please select 1, 2, or 3.");
+          ConsoleUI.displayMessage("Invalid option. Please select 1, 2, or 3.");
       }
     }
 
-    this.ui.displayMessage("\nApplication terminated.");
+    ConsoleUI.displayMessage("\nApplication terminated.");
 
-    this.ui.close();
+    ConsoleUI.close();
   }
 
   private displayMenu(): void {
-    this.ui.displayMessage(
+    ConsoleUI.displayMessage(
       [
         "\nMain Menu",
         "1. Item Tax Calculator",

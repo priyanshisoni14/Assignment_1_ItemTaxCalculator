@@ -1,4 +1,4 @@
-import { readFile, writeFile } from "fs/promises";
+import { readFile, writeFile, rename } from "fs/promises";
 import { Course } from "../../models/assignment2/Course";
 import { Student } from "../../models/assignment2/Student";
 import { StudentStore } from "./StudentStore";
@@ -13,43 +13,56 @@ interface StudentRecord {
 }
 
 export class StudentJsonStore implements StudentStore {
-
   constructor(private readonly filePath: string) {}
 
   public async load(): Promise<Student[]> {
-
     try {
-
       const raw = await readFile(this.filePath, "utf-8");
 
       const records = JSON.parse(raw) as StudentRecord[];
 
       return records.map((record) => this.toStudent(record));
-
     } catch (error) {
-
-      if (
-        error instanceof Error &&
-        "code" in error &&
-        (error as NodeJS.ErrnoException).code === "ENOENT"
-      ) {
-        // No file yet — first run. Start with an empty list.
+      if (this.isFileNotFoundError(error)) {
         return [];
       }
 
-      throw error;
+      await this.recoverFromCorruptedFile(error);
+
+      return [];
     }
   }
 
   public async save(students: Student[]): Promise<void> {
-
     const records = students.map((student) => this.toRecord(student));
 
-    await writeFile(
-      this.filePath,
-      JSON.stringify(records, null, 2),
-      "utf-8",
+    await writeFile(this.filePath, JSON.stringify(records, null, 2), "utf-8");
+  }
+
+  private isFileNotFoundError(error: unknown): boolean {
+    return (
+      error instanceof Error &&
+      "code" in error &&
+      (error as NodeJS.ErrnoException).code === "ENOENT"
     );
+  }
+
+  private async recoverFromCorruptedFile(error: unknown): Promise<void> {
+    const backupPath = `${this.filePath}.corrupted-${Date.now()}.bak`;
+
+    try {
+      await rename(this.filePath, backupPath);
+
+      console.warn(
+        `Warning: ${this.filePath} could not be read (${
+          error instanceof Error ? error.message : "unknown error"
+        }). Backed up to ${backupPath}; starting with an empty student list.`,
+      );
+    } catch {
+      console.warn(
+        `Warning: ${this.filePath} could not be read and could not be backed up. Starting with an empty student list.`,
+      );
+    }
   }
 
   private toRecord(student: Student): StudentRecord {

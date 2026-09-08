@@ -1,10 +1,8 @@
-import { studentInputConfig } from "../config/assignment2/StudentInputConfig";
-import { InputConfig } from "../models/InputConfig";
-import { InputParser } from "../parser/InputParser";
 import { ConsoleUI } from "../ui/ConsoleUI";
+import { SingleFieldValidator } from "../utils/assignment2/SingleFieldValidator";
 
 export class StudentInputCollector {
-  constructor(private readonly ui: ConsoleUI) {}
+  constructor(private readonly singleFieldValidator: SingleFieldValidator) {}
 
   public async collect(): Promise<Record<string, string>> {
     const fullName = await this.collectField("fullName", "Enter full name: ");
@@ -23,38 +21,20 @@ export class StudentInputCollector {
       "Select exactly 4 courses from A, B, C, D, E, F (comma-separated): ",
     );
 
-    return {
-      fullName,
-      age,
-      address,
-      rollNumber,
-      courses,
-    };
+    return { fullName, age, address, rollNumber, courses };
   }
 
   private async collectField(field: string, question: string): Promise<string> {
-    const fieldConfig: InputConfig = {
-      [field]: studentInputConfig[field],
-    };
-
-    const parser = new InputParser(fieldConfig);
-
     while (true) {
-      const value = await this.ui.askQuestion(question);
+      const value = await ConsoleUI.askQuestion(question);
 
-      try {
-        parser.parseRecord({
-          [field]: value,
-        });
+      const errorMessage = this.singleFieldValidator.validate(field, value);
 
+      if (errorMessage === undefined) {
         return value;
-      } catch (error) {
-        if (error instanceof Error) {
-          this.ui.displayError(error.message);
-        } else {
-          this.ui.displayError("Invalid input.");
-        }
       }
+
+      ConsoleUI.displayError(errorMessage);
     }
   }
 }

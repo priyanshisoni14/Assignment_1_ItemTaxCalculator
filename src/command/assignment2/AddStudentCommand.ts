@@ -3,23 +3,15 @@ import { ConsoleUI } from "../../ui/ConsoleUI";
 import { Command } from "./Command";
 
 export class AddStudentCommand implements Command {
-  constructor(
-    private readonly studentRegistration: StudentRegistration,
-    private readonly ui: ConsoleUI,
-  ) {}
+  constructor(private readonly studentRegistration: StudentRegistration) {}
 
   public async execute(): Promise<boolean> {
     try {
       await this.studentRegistration.registerStudent();
 
-      this.ui.displayMessage("Student added successfully.");
+      ConsoleUI.displayMessage("Student added successfully.");
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "An unexpected error occurred.";
-
-      this.ui.displayError(message);
+      ConsoleUI.displayCaughtError(error, "An unexpected error occurred.");
     }
 
     return true;
