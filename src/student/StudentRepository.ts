@@ -1,32 +1,34 @@
 import {Student} from "../models/assignment2/Student";
-import {LogRecord, StudentStore} from "../persistence/assignment2/StudentStore";
+import {StudentStore} from "../persistence/assignment2/StudentStore";
 import {StudentSorter} from "../sorter/StudentSorter";
 
 export class StudentRepository {
 
+    private students: Student[] = [];
+
     private studentsByRollNumber:
         Map<number, Student> = new Map();
 
-    private pendingOperations: LogRecord[] = [];
+    private unsavedChangesExist = false;
 
     constructor(
-        private readonly logStore: StudentStore,
+        private readonly store: StudentStore,
         private readonly studentSorter: StudentSorter = new StudentSorter()
     ) {}
 
     public async load(): Promise<void> {
 
         const loadedStudents =
-            await this.logStore.loadAll();
+            await this.store.load();
 
-        this.studentsByRollNumber =
-            new Map(
-                loadedStudents.map(
-                    student => [student.rollNumber, student]
-                )
+        this.students =
+            this.studentSorter.sortDefault(
+                loadedStudents
             );
 
-        this.pendingOperations = [];
+        this.rebuildIndex();
+
+        this.unsavedChangesExist = false;
     }
 
     public addStudent(
@@ -43,15 +45,15 @@ export class StudentRepository {
             );
         }
 
-        this.studentsByRollNumber.set(
-            student.rollNumber,
-            student
-        );
+        this.students =
+            this.studentSorter.sortDefault([
+                ...this.students,
+                student
+            ]);
 
-        this.pendingOperations.push({
-            op: "insert",
-            student
-        });
+        this.rebuildIndex();
+
+        this.unsavedChangesExist = true;
     }
 
     public deleteByRollNumber(
@@ -65,14 +67,17 @@ export class StudentRepository {
             return false;
         }
 
+        this.students =
+            this.students.filter(
+                existingStudent =>
+                    existingStudent.rollNumber !== rollNumber
+            );
+
         this.studentsByRollNumber.delete(
             rollNumber
         );
 
-        this.pendingOperations.push({
-            op: "delete",
-            id: student.id
-        });
+        this.unsavedChangesExist = true;
 
         return true;
     }
@@ -88,22 +93,34 @@ export class StudentRepository {
 
     public getStudents(): Student[] {
 
-        return this.studentSorter.sortDefault(
-            [...this.studentsByRollNumber.values()]
-        );
+        return [...this.students];
     }
 
     public hasUnsavedChanges(): boolean {
 
-        return this.pendingOperations.length > 0;
+        return this.unsavedChangesExist;
     }
 
     public async save(): Promise<void> {
 
-        await this.logStore.appendAll(
-            this.pendingOperations
+        if (!this.unsavedChangesExist) {
+            return;
+        }
+
+        await this.store.save(
+            this.students
         );
 
-        this.pendingOperations = [];
+        this.unsavedChangesExist = false;
+    }
+
+    private rebuildIndex(): void {
+
+        this.studentsByRollNumber =
+            new Map(
+                this.students.map(
+                    student => [student.rollNumber, student]
+                )
+            );
     }
 }
