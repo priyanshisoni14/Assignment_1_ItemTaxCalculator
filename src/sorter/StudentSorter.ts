@@ -1,29 +1,12 @@
 import { Student } from "../models/assignment2/Student";
-
 import { StudentSortField } from "../models/assignment2/StudentSortField";
-
 import { SortOrder } from "../models/assignment2/SortOrder";
-
 import { Comparator } from "./Comparator";
 
 export class StudentSorter {
-  private readonly defaultComparator: Comparator<Student> = (
-    firstStudent,
-    secondStudent,
-  ) => {
-    const nameComparison = firstStudent.fullName.localeCompare(
-      secondStudent.fullName,
-    );
-
-    if (nameComparison !== 0) {
-      return nameComparison;
-    }
-
-    return firstStudent.rollNumber - secondStudent.rollNumber;
-  };
 
   public sortDefault(students: Student[]): Student[] {
-    return [...students].sort(this.defaultComparator);
+    return this.sortBy(students, "fullName", "ascending");
   }
 
   public sortBy(
@@ -34,11 +17,7 @@ export class StudentSorter {
     const direction = order === "ascending" ? 1 : -1;
 
     const comparator: Comparator<Student> = (firstStudent, secondStudent) => {
-      const comparison = this.compareStudents(
-        firstStudent,
-        secondStudent,
-        field,
-      );
+      const comparison = this.compareByField(firstStudent, secondStudent, field);
 
       if (comparison !== 0) {
         return comparison * direction;
@@ -50,7 +29,7 @@ export class StudentSorter {
     return [...students].sort(comparator);
   }
 
-  private compareStudents(
+  private compareByField(
     firstStudent: Student,
     secondStudent: Student,
     field: StudentSortField,
@@ -67,6 +46,11 @@ export class StudentSorter {
 
       case "address":
         return firstStudent.address.localeCompare(secondStudent.address);
+
+      default: {
+        const exhaustiveCheck: never = field;
+        throw new Error(`Unhandled sort field: ${exhaustiveCheck}`);
+      }
     }
   }
 }
