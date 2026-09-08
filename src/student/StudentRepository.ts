@@ -6,9 +6,6 @@ export class StudentRepository {
 
     private students: Student[] = [];
 
-    private studentsByRollNumber:
-        Map<number, Student> = new Map();
-
     private unsavedChangesExist = false;
 
     constructor(
@@ -26,8 +23,6 @@ export class StudentRepository {
                 loadedStudents
             );
 
-        this.rebuildIndex();
-
         this.unsavedChangesExist = false;
     }
 
@@ -36,9 +31,9 @@ export class StudentRepository {
     ): void {
 
         if (
-            this.studentsByRollNumber.has(
+            this.findByRollNumber(
                 student.rollNumber
-            )
+            ) !== undefined
         ) {
             throw new Error(
                 `A student with roll number ${student.rollNumber} already exists.`
@@ -51,8 +46,6 @@ export class StudentRepository {
                 student
             ]);
 
-        this.rebuildIndex();
-
         this.unsavedChangesExist = true;
     }
 
@@ -60,12 +53,7 @@ export class StudentRepository {
         rollNumber: number
     ): boolean {
 
-        const student =
-            this.studentsByRollNumber.get(rollNumber);
-
-        if (student === undefined) {
-            return false;
-        }
+        const originalCount = this.students.length;
 
         this.students =
             this.students.filter(
@@ -73,9 +61,9 @@ export class StudentRepository {
                     existingStudent.rollNumber !== rollNumber
             );
 
-        this.studentsByRollNumber.delete(
-            rollNumber
-        );
+        if (this.students.length === originalCount) {
+            return false;
+        }
 
         this.unsavedChangesExist = true;
 
@@ -86,8 +74,9 @@ export class StudentRepository {
         rollNumber: number
     ): Student | undefined {
 
-        return this.studentsByRollNumber.get(
-            rollNumber
+        return this.students.find(
+            existingStudent =>
+                existingStudent.rollNumber === rollNumber
         );
     }
 
@@ -112,15 +101,5 @@ export class StudentRepository {
         );
 
         this.unsavedChangesExist = false;
-    }
-
-    private rebuildIndex(): void {
-
-        this.studentsByRollNumber =
-            new Map(
-                this.students.map(
-                    student => [student.rollNumber, student]
-                )
-            );
     }
 }
