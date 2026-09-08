@@ -13,7 +13,7 @@ export class StudentDisplay {
   ) {}
 
   public async displayStudents(): Promise<void> {
-    const students = await this.studentRepository.getStudents();
+    const students =  this.studentRepository.getStudents();
 
     if (students.length === 0) {
       this.ui.displayMessage("No student details available.");
