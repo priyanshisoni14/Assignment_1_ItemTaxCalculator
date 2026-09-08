@@ -4,7 +4,7 @@ import { StudentSortField } from "../models/assignment2/StudentSortField";
 
 import { SortOrder } from "../models/assignment2/SortOrder";
 
-import { Comparator, InsertionSorter } from "./InsertionSorter";
+import { Comparator } from "./Comparator";
 
 export class StudentSorter {
   private readonly defaultComparator: Comparator<Student> = (
@@ -24,17 +24,6 @@ export class StudentSorter {
 
   public sortDefault(students: Student[]): Student[] {
     return [...students].sort(this.defaultComparator);
-  }
-
-  public insertInDefaultOrder(
-    students: Student[],
-    student: Student,
-  ): Student[] {
-    return InsertionSorter.insertSorted(
-      students,
-      student,
-      this.defaultComparator,
-    );
   }
 
   public sortBy(

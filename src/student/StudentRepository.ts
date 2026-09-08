@@ -4,9 +4,8 @@ import {StudentSorter} from "../sorter/StudentSorter";
 
 export class StudentRepository {
 
-    private students: Student[] = [];
-    
-    private studentsByRollNumber: Map<number, Student> = new Map();
+    private studentsByRollNumber:
+        Map<number, Student> = new Map();
 
     private pendingOperations: LogRecord[] = [];
 
@@ -20,12 +19,12 @@ export class StudentRepository {
         const loadedStudents =
             await this.logStore.loadAll();
 
-        this.students =
-            this.studentSorter.sortDefault(
-                loadedStudents
+        this.studentsByRollNumber =
+            new Map(
+                loadedStudents.map(
+                    student => [student.rollNumber, student]
+                )
             );
-
-        this.rebuildIndex();
 
         this.pendingOperations = [];
     }
@@ -35,20 +34,14 @@ export class StudentRepository {
     ): void {
 
         if (
-            this.findByRollNumber(
+            this.studentsByRollNumber.has(
                 student.rollNumber
-            ) !== undefined
+            )
         ) {
             throw new Error(
                 `A student with roll number ${student.rollNumber} already exists.`
             );
         }
-
-        this.students =
-            this.studentSorter.insertInDefaultOrder(
-                this.students,
-                student
-            );
 
         this.studentsByRollNumber.set(
             student.rollNumber,
@@ -66,19 +59,15 @@ export class StudentRepository {
     ): boolean {
 
         const student =
-            this.findByRollNumber(rollNumber);
+            this.studentsByRollNumber.get(rollNumber);
 
         if (student === undefined) {
             return false;
         }
 
-        this.students =
-            this.students.filter(
-                existingStudent =>
-                    existingStudent.rollNumber !== rollNumber
-            );
-
-        this.studentsByRollNumber.delete(rollNumber);
+        this.studentsByRollNumber.delete(
+            rollNumber
+        );
 
         this.pendingOperations.push({
             op: "delete",
@@ -92,12 +81,16 @@ export class StudentRepository {
         rollNumber: number
     ): Student | undefined {
 
-        return this.studentsByRollNumber.get(rollNumber);
+        return this.studentsByRollNumber.get(
+            rollNumber
+        );
     }
 
     public getStudents(): Student[] {
 
-        return [...this.students];
+        return this.studentSorter.sortDefault(
+            [...this.studentsByRollNumber.values()]
+        );
     }
 
     public hasUnsavedChanges(): boolean {
@@ -112,14 +105,5 @@ export class StudentRepository {
         );
 
         this.pendingOperations = [];
-    }
-
-    private rebuildIndex(): void {
-
-        this.studentsByRollNumber = new Map(
-            this.students.map(
-                student => [student.rollNumber, student]
-            )
-        );
     }
 }
