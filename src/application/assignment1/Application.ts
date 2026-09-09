@@ -125,7 +125,7 @@ export class Application {
   }
 
   private displayProcessingError(error: unknown): void {
-    ConsoleUI.displayCaughtError(error, "An unexpected error occurred.");
+    ConsoleUI.displayCaughtError("Application.handleItem", error, "An unexpected error occurred.");
   }
 
   private displayItemSummary(items: Item[]): void {

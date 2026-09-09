@@ -11,7 +11,7 @@ export class AddStudentCommand implements Command {
 
       ConsoleUI.displayMessage("Student added successfully.");
     } catch (error) {
-      ConsoleUI.displayCaughtError(error, "An unexpected error occurred.");
+      ConsoleUI.displayCaughtError("AddStudentCommand.execute", error, "An unexpected error occurred.");
     }
 
     return true;

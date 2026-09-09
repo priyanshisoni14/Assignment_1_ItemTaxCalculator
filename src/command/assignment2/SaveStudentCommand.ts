@@ -11,7 +11,7 @@ export class SaveStudentCommand implements Command {
 
       ConsoleUI.displayMessage("User details saved successfully.");
     } catch (error) {
-      ConsoleUI.displayCaughtError(error, "Unable to save user details.");
+      ConsoleUI.displayCaughtError("SaveStudentCommand.execute", error, "Unable to save user details.");
     }
 
     return true;

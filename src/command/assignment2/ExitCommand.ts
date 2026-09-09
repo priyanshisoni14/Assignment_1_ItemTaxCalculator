@@ -21,7 +21,7 @@ export class ExitCommand implements Command {
 
       return false;
     } catch (error) {
-      ConsoleUI.displayCaughtError(error, "Unable to save user details.");
+      ConsoleUI.displayCaughtError("ExitCommand.execute", error, "Unable to save user details.");
 
       return true;
     }

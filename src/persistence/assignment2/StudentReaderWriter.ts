@@ -1,7 +1,12 @@
-import { readFile, writeFile, rename } from "fs/promises";
+import { readFile, rename, writeFile } from "fs/promises";
 import { Course } from "../../models/assignment2/Course";
 import { Student } from "../../models/assignment2/Student";
-import { StudentStore } from "./StudentStore";
+import { Logger } from "../../logger/Logger";
+
+export interface StudentReaderWriter {
+  load(): Promise<Student[]>;
+  save(students: Student[]): Promise<void>;
+}
 
 interface StudentRecord {
   id: string;
@@ -12,7 +17,7 @@ interface StudentRecord {
   courses: Course[];
 }
 
-export class StudentJsonStore implements StudentStore {
+export class StudentFileReaderWriter implements StudentReaderWriter {
   constructor(private readonly filePath: string) {}
 
   public async load(): Promise<Student[]> {
@@ -24,6 +29,7 @@ export class StudentJsonStore implements StudentStore {
       return records.map((record) => this.toStudent(record));
     } catch (error) {
       if (this.isFileNotFoundError(error)) {
+  
         return [];
       }
 
@@ -47,7 +53,10 @@ export class StudentJsonStore implements StudentStore {
     );
   }
 
+
   private async recoverFromCorruptedFile(error: unknown): Promise<void> {
+    Logger.error("StudentFileReaderWriter.load", error);
+
     const backupPath = `${this.filePath}.corrupted-${Date.now()}.bak`;
 
     try {

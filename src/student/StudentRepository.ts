@@ -1,5 +1,5 @@
 import {Student} from "../models/assignment2/Student";
-import {StudentStore} from "../persistence/assignment2/StudentStore";
+import {StudentFileReaderWriter} from "../persistence/assignment2/StudentReaderWriter";
 import {StudentSorter} from "../sorter/StudentSorter";
 
 export class StudentRepository {
@@ -9,7 +9,7 @@ export class StudentRepository {
     private unsavedChangesExist = false;
 
     constructor(
-        private readonly store: StudentStore,
+        private readonly store: StudentFileReaderWriter,
         private readonly studentSorter: StudentSorter = new StudentSorter()
     ) {}
 

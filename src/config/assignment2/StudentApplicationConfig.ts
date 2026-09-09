@@ -8,7 +8,7 @@ import { ExitCommand } from "../../command/assignment2/ExitCommand";
 import { SaveStudentCommand } from "../../command/assignment2/SaveStudentCommand";
 import { StudentFactory } from "../../factory/assignment2/StudentFactory";
 import { InputParser } from "../../parser/InputParser";
-import { StudentJsonStore } from "../../persistence/assignment2/StudentJsonStore";
+import { StudentFileReaderWriter } from "../../persistence/assignment2/StudentReaderWriter";
 import { StudentDeletion } from "../../student/StudentDeletion";
 import { StudentDisplay } from "../../student/StudentDisplay";
 import { StudentInputCollector } from "../../student/StudentInputCollector";
@@ -24,7 +24,7 @@ export class StudentApplicationConfig {
     commandRegistry: CommandRegistry;
     loadStudents: () => Promise<void>;
   } {
-    const studentStore = new StudentJsonStore("students.db.json");
+    const studentStore = new StudentFileReaderWriter("students.db.json");
 
     const studentRepository = new StudentRepository(
       studentStore,
@@ -67,7 +67,7 @@ export class StudentApplicationConfig {
       try {
         await studentRepository.load();
       } catch (error) {
-        ConsoleUI.displayCaughtError(error, "Unable to load user details.");
+       ConsoleUI.displayCaughtError("StudentApplicationConfig.loadStudents", error, "Unable to load user details.");
       }
     };
 
