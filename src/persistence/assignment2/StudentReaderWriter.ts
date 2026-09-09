@@ -2,6 +2,7 @@ import { readFile, rename, writeFile } from "fs/promises";
 import { Course } from "../../models/assignment2/Course";
 import { Student } from "../../models/assignment2/Student";
 import { Logger } from "../../logger/Logger";
+import { ConsoleUI } from "../../ui/ConsoleUI";
 
 export interface StudentReaderWriter {
   load(): Promise<Student[]>;
@@ -29,7 +30,6 @@ export class StudentFileReaderWriter implements StudentReaderWriter {
       return records.map((record) => this.toStudent(record));
     } catch (error) {
       if (this.isFileNotFoundError(error)) {
-  
         return [];
       }
 
@@ -53,7 +53,6 @@ export class StudentFileReaderWriter implements StudentReaderWriter {
     );
   }
 
-
   private async recoverFromCorruptedFile(error: unknown): Promise<void> {
     Logger.error("StudentFileReaderWriter.load", error);
 
@@ -67,8 +66,13 @@ export class StudentFileReaderWriter implements StudentReaderWriter {
           error instanceof Error ? error.message : "unknown error"
         }). Backed up to ${backupPath}; starting with an empty student list.`,
       );
-    } catch {
-      console.warn(
+    } catch (renameError) {
+      Logger.error(
+        "StudentFileReaderWriter.recoverFromCorruptedFile",
+        renameError,
+      );
+
+      ConsoleUI.displayMessage(
         `Warning: ${this.filePath} could not be read and could not be backed up. Starting with an empty student list.`,
       );
     }

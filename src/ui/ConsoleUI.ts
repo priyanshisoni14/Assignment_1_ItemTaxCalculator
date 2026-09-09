@@ -21,17 +21,12 @@ export class ConsoleUI {
     console.error(`\nError: ${message}`);
   }
 
-
   public static displayCaughtError(
     context: string,
     error: unknown,
     fallbackMessage: string,
   ): void {
-    Logger.error(context, error);
-
-    ConsoleUI.displayError(
-      error instanceof Error ? error.message : fallbackMessage,
-    );
+    Logger.error(context, error, fallbackMessage);
   }
 
   public static displayTable(details: Record<string, string | number>[]): void {
