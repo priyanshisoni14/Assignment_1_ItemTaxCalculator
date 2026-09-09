@@ -21,16 +21,7 @@ export class ConsoleUI {
     console.error(`\nError: ${message}`);
   }
 
-  /**
-   * Displays a short, friendly message to the person using the app,
-   * while separately logging the technical detail (which file and
-   * function it came from, plus the full stack trace when available)
-   * to error.log via Logger — so a bug report always has an exact
-   * throwing location, not just whatever fallback text the user saw.
-   *
-   * context should identify where this was caught, in
-   * "ClassName.methodName" form, e.g. "StudentRegistration.registerStudent".
-   */
+
   public static displayCaughtError(
     context: string,
     error: unknown,
