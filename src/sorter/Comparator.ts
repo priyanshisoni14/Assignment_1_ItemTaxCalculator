@@ -1,1 +1,0 @@
-export type Comparator<T> = (first: T, second: T) => number;

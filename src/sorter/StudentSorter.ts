@@ -1,8 +1,8 @@
 import { Student } from "../models/assignment2/Student";
 import { StudentSortField } from "../models/assignment2/StudentSortField";
 import { SortOrder } from "../models/assignment2/SortOrder";
-import { Comparator } from "./Comparator";
 
+type Comparator<T> = (first: T, second: T) => number;
 export class StudentSorter {
 
   public sortDefault(students: Student[]): Student[] {
