@@ -6,7 +6,6 @@ import { DeleteStudentCommand } from "../../command/assignment2/DeleteStudentCom
 import { DisplayStudentCommand } from "../../command/assignment2/DisplayStudentCommand";
 import { ExitCommand } from "../../command/assignment2/ExitCommand";
 import { SaveStudentCommand } from "../../command/assignment2/SaveStudentCommand";
-import { StudentFactory } from "../../factory/assignment2/StudentFactory";
 import { InputParser } from "../../parser/InputParser";
 import { StudentFileReaderWriter } from "../../persistence/assignment2/StudentReaderWriter";
 import { StudentDeletion } from "../../student/StudentDeletion";
@@ -38,7 +37,6 @@ export class StudentApplicationConfig {
     const studentRegistration = new StudentRegistration(
       new StudentInputCollector(singleFieldValidator),
       new InputParser(studentInputConfig),
-      new StudentFactory(),
       studentRepository,
       studentInputMapper,
     );
@@ -67,7 +65,11 @@ export class StudentApplicationConfig {
       try {
         await studentRepository.load();
       } catch (error) {
-       ConsoleUI.displayCaughtError("StudentApplicationConfig.loadStudents", error, "Unable to load user details.");
+        ConsoleUI.displayCaughtError(
+          "StudentApplicationConfig.loadStudents",
+          error,
+          "Unable to load user details.",
+        );
       }
     };
 

@@ -1,6 +1,6 @@
 import { StudentInputCollector } from "./StudentInputCollector";
 import { StudentRepository } from "./StudentRepository";
-import { StudentFactory } from "../factory/assignment2/StudentFactory";
+import { Student } from "../models/assignment2/Student";
 import { InputParser } from "../parser/InputParser";
 import { StudentInputMapper } from "../utils/assignment2/StudentInputMapper";
 
@@ -8,7 +8,6 @@ export class StudentRegistration {
   constructor(
     private readonly inputCollector: StudentInputCollector,
     private readonly inputParser: InputParser,
-    private readonly studentFactory: StudentFactory,
     private readonly studentRepository: StudentRepository,
     private readonly studentInputMapper: StudentInputMapper,
   ) {}
@@ -20,7 +19,7 @@ export class StudentRegistration {
 
     const studentInput = this.studentInputMapper.map(parsedRecord);
 
-    const student = this.studentFactory.create(studentInput);
+    const student = Student.register(studentInput);
 
     this.studentRepository.addStudent(student);
   }

@@ -1,20 +1,11 @@
 import { readFile, rename, writeFile } from "fs/promises";
-import { Course } from "../../models/assignment2/Course";
 import { Student } from "../../models/assignment2/Student";
+import { StudentRecord } from "../../models/assignment2/StudentRecord";
 import { ConsoleUI } from "../../ui/ConsoleUI";
 
 export interface StudentReaderWriter {
   load(): Promise<Student[]>;
   save(students: Student[]): Promise<void>;
-}
-
-interface StudentRecord {
-  id: string;
-  fullName: string;
-  age: number;
-  address: string;
-  rollNumber: number;
-  courses: Course[];
 }
 
 export class StudentFileReaderWriter implements StudentReaderWriter {
@@ -26,7 +17,7 @@ export class StudentFileReaderWriter implements StudentReaderWriter {
 
       const records = JSON.parse(raw) as StudentRecord[];
 
-      return records.map((record) => this.toStudent(record));
+      return records.map((record) => Student.fromRecord(record));
     } catch (error) {
       if (this.isFileNotFoundError(error)) {
         return [];
@@ -39,9 +30,7 @@ export class StudentFileReaderWriter implements StudentReaderWriter {
   }
 
   public async save(students: Student[]): Promise<void> {
-    const records = students.map((student) => this.toRecord(student));
-
-    await writeFile(this.filePath, JSON.stringify(records, null, 2), "utf-8");
+    await writeFile(this.filePath, JSON.stringify(students, null, 2), "utf-8");
   }
 
   private isFileNotFoundError(error: unknown): boolean {
@@ -70,27 +59,5 @@ export class StudentFileReaderWriter implements StudentReaderWriter {
         `${this.filePath} could not be read and could not be backed up. Starting with an empty student list.`,
       );
     }
-  }
-
-  private toRecord(student: Student): StudentRecord {
-    return {
-      id: student.id,
-      fullName: student.fullName,
-      age: student.age,
-      address: student.address,
-      rollNumber: student.rollNumber,
-      courses: student.courses,
-    };
-  }
-
-  private toStudent(record: StudentRecord): Student {
-    return new Student(
-      record.id,
-      record.fullName,
-      record.age,
-      record.address,
-      record.rollNumber,
-      record.courses.map((course) => course as Course),
-    );
   }
 }
