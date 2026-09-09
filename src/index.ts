@@ -1,5 +1,5 @@
-import { Application } from "./application/Application";
+import { MainApplication } from "./application/MainApplication";
 
-Application
-    .getInstance()
-    .run();
+const application = MainApplication.getInstance();
+
+application.run();

@@ -1,118 +1,39 @@
 import * as readline from "readline";
-
-import { Item } from "../models/Item";
-import { ItemSummaryTotals } from "../utils/ItemSummaryCalculator";
+import { Logger } from "../logger/Logger";
 
 export class ConsoleUI {
+  private static readonly rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
 
-    private readonly rl =
-        readline.createInterface({
-            input: process.stdin,
-            output: process.stdout
-        });
+  public static askQuestion(question: string): Promise<string> {
+    return new Promise((resolve) => {
+      ConsoleUI.rl.question(question, resolve);
+    });
+  }
 
-    askQuestion(
-        question: string
-    ): Promise<string> {
+  public static displayMessage(message: string): void {
+    console.log(message);
+  }
 
-        return new Promise((resolve) => {
-            this.rl.question(
-                question,
-                resolve
-            );
-        });
-    }
+  public static displayError(message: string): void {
+    console.error(`\nError: ${message}`);
+  }
 
-    displayItemDetails(
-        item: Item
-    ): void {
+  public static displayCaughtError(
+    context: string,
+    error: unknown,
+    fallbackMessage: string,
+  ): void {
+    Logger.error(context, error, fallbackMessage);
+  }
 
-        this.displayDetails(
-            [
-                {
-                    ID: item.id,
-                    ...item.getDisplayDetails()
-                }
-            ]
-        );
-    }
+  public static displayTable(details: Record<string, string | number>[]): void {
+    console.table(details);
+  }
 
-    displayItemSummary(
-        items: Item[],
-        totals: ItemSummaryTotals
-    ): void {
-
-        this.displayAllItemDetails(
-            items
-        );
-
-        this.displaySummaryTotals(
-            totals
-        );
-    }
-
-    displayMessage(
-        message: string
-    ): void {
-
-        console.log(message);
-    }
-
-    displayError(
-        message: string
-    ): void {
-
-        console.error(
-            `\nError: ${message}`
-        );
-    }
-
-    close(): void {
-
-        this.rl.close();
-    }
-
-    private displayAllItemDetails(
-        items: Item[]
-    ): void {
-
-        const itemDetails =
-            items.map((item) => ({
-                ID: item.id,
-                ...item.getDisplayDetails()
-            }));
-
-        this.displayDetails(
-            itemDetails
-        );
-    }
-
-    private displaySummaryTotals(
-        totals: ItemSummaryTotals
-    ): void {
-
-        this.displayDetails(
-            [
-                {
-                    "Total Item Cost":
-                        totals.totalItemCost.toFixed(2),
-
-                    "Total Tax":
-                        totals.totalTax.toFixed(2),
-
-                    "Total Final Price":
-                        totals.totalFinalPrice.toFixed(2)
-                }
-            ]
-        );
-    }
-
-    private displayDetails(
-        details: Record<string, string | number>[]
-    ): void {
-
-        console.table(
-            details
-        );
-    }
+  public static close(): void {
+    ConsoleUI.rl.close();
+  }
 }
