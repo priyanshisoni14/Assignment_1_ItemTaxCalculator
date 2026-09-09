@@ -1,7 +1,6 @@
 import { readFile, rename, writeFile } from "fs/promises";
 import { Course } from "../../models/assignment2/Course";
 import { Student } from "../../models/assignment2/Student";
-import { Logger } from "../../logger/Logger";
 import { ConsoleUI } from "../../ui/ConsoleUI";
 
 export interface StudentReaderWriter {
@@ -54,26 +53,21 @@ export class StudentFileReaderWriter implements StudentReaderWriter {
   }
 
   private async recoverFromCorruptedFile(error: unknown): Promise<void> {
-    Logger.error("StudentFileReaderWriter.load", error);
-
     const backupPath = `${this.filePath}.corrupted-${Date.now()}.bak`;
 
     try {
       await rename(this.filePath, backupPath);
 
-      console.warn(
-        `Warning: ${this.filePath} could not be read (${
-          error instanceof Error ? error.message : "unknown error"
-        }). Backed up to ${backupPath}; starting with an empty student list.`,
+      ConsoleUI.displayCaughtError(
+        "StudentFileReaderWriter.load",
+        error,
+        `${this.filePath} could not be read. Backed up to ${backupPath}; starting with an empty student list.`,
       );
     } catch (renameError) {
-      Logger.error(
+      ConsoleUI.displayCaughtError(
         "StudentFileReaderWriter.recoverFromCorruptedFile",
         renameError,
-      );
-
-      ConsoleUI.displayMessage(
-        `Warning: ${this.filePath} could not be read and could not be backed up. Starting with an empty student list.`,
+        `${this.filePath} could not be read and could not be backed up. Starting with an empty student list.`,
       );
     }
   }
