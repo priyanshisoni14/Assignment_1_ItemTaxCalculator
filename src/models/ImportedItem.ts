@@ -1,12 +1,25 @@
 import { Item } from "./Item";
 import { ItemType } from "./ItemType";
-import { TaxUtils } from "../utils/TaxUtils";
 
 export class ImportedItem extends Item {
 
       calculateTaxPerUnit(): number {
-        return TaxUtils.calculateImportedTax(
-            this.price
+         const importDuty = this.price * 0.10;
+
+        const costAfterImportDuty =
+            this.price + importDuty;
+
+        if (costAfterImportDuty <= 100) {
+            return importDuty + 5;
+        }
+
+        if (costAfterImportDuty <= 200) {
+            return importDuty + 10;
+        }
+
+        return (
+            importDuty +
+            costAfterImportDuty * 0.05
         );
     }
 
